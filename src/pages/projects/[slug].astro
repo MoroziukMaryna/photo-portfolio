@@ -1,0 +1,151 @@
+---
+import { sanityClient } from 'sanity:client';
+
+export async function getStaticPaths() {
+  const projects = await sanityClient.fetch(`*[_type == "project"] { "slug": slug.current }`);
+  return projects.map((p: any) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const project = await sanityClient.fetch(`
+  *[_type == "project" && slug.current == $slug][0] {
+    titleUa, titleEn, category,
+    "mainImageUrl": mainImage.asset->url,
+    "galleryUrls": gallery[].asset->url
+  }
+`, { slug });
+
+const gallery = project?.galleryUrls || [];
+---
+
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{project?.titleUa} | Portfolio</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+  </head>
+  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen">
+    <!-- ШАПКА -->
+    <header class="p-6 max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
+        ← На головну
+      </a>
+      <span class="text-xs uppercase tracking-widest text-stone-400">{project?.category}</span>
+    </header>
+
+    <!-- ОСНОВНИЙ КОНТЕНТ -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
+      <div class="text-center mb-12">
+        <h1 
+          id="project-title"
+          data-title-ua={project?.titleUa} 
+          data-title-en={project?.titleEn || project?.titleUa}
+          class="font-serif text-4xl md:text-5xl font-light italic"
+        >
+          {project?.titleUa}
+        </h1>
+      </div>
+
+      <p data-i18n-ua="Натисніть на фото для перегляду" data-i18n-en="Click photo to expand" class="text-center text-xs text-stone-400 mb-8 uppercase tracking-wider">
+        Натисніть на фото для перегляду
+      </p>
+
+      {gallery.length > 0 && (
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {gallery.map((url: string, index: number) => (
+            <img 
+              src={url} 
+              alt={`${project.titleUa} ${index + 1}`}
+              data-index={index}
+              class="gallery-img w-full h-[400px] object-cover rounded-lg shadow-md cursor-pointer hover:scale-[1.02] transition duration-300"
+            />
+          ))}
+        </div>
+      )}
+    </main>
+
+    <!-- LIGHTBOX -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden items-center justify-between p-4 sm:p-10 select-none">
+      <button id="close-btn" class="absolute top-6 right-8 text-white text-4xl font-light hover:opacity-75 transition z-10 cursor-pointer">&times;</button>
+      <div id="counter" class="absolute top-8 left-8 text-white/70 text-xs tracking-widest font-mono"></div>
+
+      <button id="prev-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">‹</button>
+      <div class="max-w-full max-h-[85vh] flex items-center justify-center">
+        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl transition-all duration-300" />
+      </div>
+      <button id="next-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">›</button>
+    </div>
+
+    <script define:vars={{ gallery }}>
+      let currentIndex = 0;
+
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const counter = document.getElementById('counter');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const closeBtn = document.getElementById('close-btn');
+
+      // Переклад на сторінці окремого проєкту
+      const savedLang = localStorage.getItem('preferred_lang') || 'ua';
+      
+      document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
+        const text = el.getAttribute(`data-i18n-${savedLang}`);
+        if (text) el.textContent = text;
+      });
+
+      const titleEl = document.getElementById('project-title');
+      if (titleEl) {
+        const titleText = titleEl.getAttribute(`data-title-${savedLang}`);
+        if (titleText) titleEl.textContent = titleText;
+      }
+
+      // Логіка галереї
+      function showImage(index) {
+        if (index < 0) index = gallery.length - 1;
+        if (index >= gallery.length) index = 0;
+        
+        currentIndex = index;
+        lightboxImg.src = gallery[currentIndex];
+        counter.textContent = `${currentIndex + 1} / ${gallery.length}`;
+      }
+
+      function openLightbox(index) {
+        showImage(index);
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLightbox() {
+        lightbox.classList.add('hidden');
+        lightbox.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+      }
+
+      document.querySelectorAll('.gallery-img').forEach(img => {
+        img.addEventListener('click', (e) => {
+          const index = parseInt(e.target.getAttribute('data-index') || '0');
+          openLightbox(index);
+        });
+      });
+
+      prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); showImage(currentIndex - 1); });
+      nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); showImage(currentIndex + 1); });
+      closeBtn?.addEventListener('click', closeLightbox);
+
+      lightbox?.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (lightbox?.classList.contains('flex')) {
+          if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
+          if (e.key === 'ArrowRight') showImage(currentIndex + 1);
+          if (e.key === 'Escape') closeLightbox();
+        }
+      });
+    </script>
+  </body>
+</html>
