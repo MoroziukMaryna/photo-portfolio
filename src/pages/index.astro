@@ -1,38 +1,55 @@
 ---
 import { sanityClient } from 'sanity:client';
 
-// Отримуємо проєкти з Sanity
-const projects = await sanityClient.fetch(`
+const allProjects = await sanityClient.fetch(`
   *[_type == "project"] | order(_createdAt desc) {
     _id,
+    _createdAt,
     titleUa,
     titleEn,
     category,
     "slug": slug.current,
     "mainImageUrl": mainImage.asset->url,
     "coverUrl": coverImage.asset->url,
-    "coverAltUrl": cover.asset->url,
     "galleryUrls": gallery[].asset->url
   }
 `);
 
-// Отримуємо налаштування сайту
 const settings = await sanityClient.fetch(`
   *[_type == "siteSettings"][0] {
     "heroImageUrl": heroImage.asset->url,
-    "aboutImageUrl": aboutImage.asset->url,
+    "featuredPhotoUrls": featuredPhotos[].asset->url,
     photographerName,
-    aboutTextUa,
-    aboutTextEn
+    catchPhraseUa,
+    catchPhraseEn
   }
 `);
 
-const heroImage = settings?.heroImageUrl || projects[0]?.mainImageUrl || projects[0]?.coverUrl || projects[0]?.coverAltUrl || projects[0]?.galleryUrls?.[0];
-const aboutImage = settings?.aboutImageUrl;
-const name = settings?.photographerName || 'Maryna M';
+// Функція для безпечного покращення якості зображень від Sanity
+function getHighResUrl(url: string | undefined, width = 2000) {
+  if (!url) return '';
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&q=90&auto=format`;
+}
 
-const aboutUa = settings?.aboutTextUa || "Моя мета — зберігати щирі емоції, естетику моменту та унікальну атмосферу кожної зйомки.";
-const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions, aesthetic moments, and the unique atmosphere of every photoshoot.";
+const rawHero = settings?.heroImageUrl || allProjects[0]?.coverUrl || allProjects[0]?.mainImageUrl || allProjects[0]?.galleryUrls?.[0];
+const heroImage = getHighResUrl(rawHero, 2400);
+
+const featuredPhotosRaw: string[] = settings?.featuredPhotoUrls || [];
+const featuredPhotos = featuredPhotosRaw.map((url: string) => getHighResUrl(url, 2000));
+
+const name = settings?.photographerName || 'Maryna M';
+const phraseUa = settings?.catchPhraseUa || "Зберігаю справжні емоції у кожному кадрі";
+const phraseEn = settings?.catchPhraseEn || "Capturing genuine moments and timeless beauty";
+
+// Таймер 10 хвилин для новинок
+const RECENT_LIMIT_MS = 10 * 60 * 1000; 
+const now = new Date().getTime();
+
+const recentProjects = allProjects.filter((p: any) => {
+  const createdAt = new Date(p._createdAt).getTime();
+  return now - createdAt < RECENT_LIMIT_MS;
+});
 ---
 
 <html lang="uk" class="scroll-smooth">
@@ -47,40 +64,34 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
   </head>
   <body class="bg-[#f7f5f0] text-[#2c2a29] antialiased selection:bg-[#d8c3b0]">
 
-    <!-- ШАПКА / НАВІГАЦІЯ -->
+    <!-- ШАПКА -->
     <header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-stone-200/50">
       <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <a href="/" class="font-serif text-xl md:text-2xl tracking-widest uppercase font-light">
           PHOTOGRAPHER
         </a>
 
-        <!-- Декстопне меню -->
         <nav class="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest text-stone-600 font-light">
-          <a href="#gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="hover:text-black transition">Галерея</a>
-          <a href="#about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
-          <a href="#price" data-i18n-ua="Прайс" data-i18n-en="Price" class="hover:text-black transition">Прайс</a>
-          <a href="#contact" data-i18n-ua="Контакти" data-i18n-en="Contacts" class="hover:text-black transition">Контакти</a>
+          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="hover:text-black transition">Галерея</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="hover:text-black transition">Прайс</a>
         </nav>
 
-        <!-- Декстопний перемикач мов -->
         <div class="hidden md:flex items-center gap-2 text-xs font-light tracking-wider text-stone-500">
           <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
           <span>|</span>
           <button class="lang-en hover:text-black cursor-pointer">EN</button>
         </div>
 
-        <!-- Гамбургер меню -->
         <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">
           ☰
         </button>
       </div>
 
-      <!-- Мобільне меню -->
       <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-stone-200 px-6 py-6 flex-col gap-4 text-center">
-        <a href="#gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Галерея</a>
-        <a href="#about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
-        <a href="#price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Прайс</a>
-        <a href="#contact" data-i18n-ua="Контакти" data-i18n-en="Contacts" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Контакти</a>
+        <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Галерея</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
+        <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Прайс</a>
         
         <div class="pt-4 border-t border-stone-200 flex justify-center gap-4 text-sm">
           <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
@@ -93,103 +104,120 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
     <!-- HERO БАНЕР -->
     <section class="relative w-full h-screen flex items-center justify-center overflow-hidden">
       {heroImage ? (
-        <img src={heroImage} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover filter brightness-[0.85]" />
+        <img src={heroImage} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover filter brightness-[0.80]" />
       ) : (
         <div class="absolute inset-0 bg-stone-300"></div>
       )}
-      <div class="absolute inset-0 bg-black/25"></div>
+      <div class="absolute inset-0 bg-black/30"></div>
 
-      <div class="relative z-10 text-center text-white px-4 max-w-3xl">
-        <p class="text-xs uppercase tracking-[0.3em] font-light mb-4 text-stone-200">Visual Artist & Photographer</p>
-        <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-light italic tracking-wide drop-shadow-md mb-6">
-          {name}
-        </h1>
-        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-          <a href="#gallery" data-i18n-ua="Переглянути роботи" data-i18n-en="View Works" class="px-8 py-3 bg-white/90 text-stone-900 text-xs uppercase tracking-widest hover:bg-white transition rounded-full shadow-lg">
-            Переглянути роботи
+      <div class="relative z-10 text-center text-white px-4 max-w-4xl">
+        <p data-i18n-ua={phraseUa} data-i18n-en={phraseEn} class="text-xs sm:text-sm uppercase tracking-[0.3em] font-light mb-4 text-stone-200 italic">
+          {phraseUa}
+        </p>
+
+        <a href="/about" class="group inline-block">
+          <h1 class="font-serif text-5xl sm:text-7xl md:text-8xl font-light italic tracking-wide drop-shadow-md mb-6 hover:opacity-90 transition">
+            {name}
+          </h1>
+        </a>
+
+        <div class="flex flex-wrap justify-center gap-4 mt-8">
+          <a href="/gallery" data-i18n-ua="Галерея робіт" data-i18n-en="Gallery" class="px-8 py-3 bg-white/90 text-stone-900 text-xs uppercase tracking-widest hover:bg-white transition rounded-full shadow-lg">
+            Галерея робіт
           </a>
-          <a href="#contact" data-i18n-ua="Замовити зйомку" data-i18n-en="Book a Session" class="px-8 py-3 border border-white/70 text-white text-xs uppercase tracking-widest hover:bg-white/10 transition rounded-full">
-            Замовити зйомку
+          <a href="/about" data-i18n-ua="Про фотографа" data-i18n-en="About Me" class="px-8 py-3 border border-white/70 text-white text-xs uppercase tracking-widest hover:bg-white/10 transition rounded-full">
+            Про фотографа
           </a>
         </div>
       </div>
     </section>
 
-    <!-- СІТКА ГАЛЕРЕЇ -->
-    <section id="gallery" class="max-w-7xl mx-auto px-6 py-20">
-      <div class="text-center mb-12">
-        <span class="text-xs uppercase tracking-[0.25em] text-stone-400">Portfolio</span>
-        <h2 data-i18n-ua="Серії та Фотопроєкти" data-i18n-en="Series & Photo Projects" class="font-serif text-3xl md:text-4xl font-light mt-2 italic">
-          Серії та Фотопроєкти
-        </h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((project: any) => {
-          const chosenCover = project.mainImageUrl || project.coverUrl || project.coverAltUrl || project.galleryUrls?.[0];
-          
-          return (
-            <a href={`/projects/${project.slug}`} class="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition duration-500 border border-stone-200/60">
-              <div class="relative h-80 sm:h-96 overflow-hidden bg-stone-100">
-                {chosenCover ? (
-                  <img src={chosenCover} alt={project.titleUa} class="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
-                ) : (
-                  <div class="w-full h-full bg-stone-200 flex items-center justify-center text-xs text-stone-400">
-                    Немає зображення
-                  </div>
-                )}
-              </div>
-              <div class="p-6">
-                <span class="text-[10px] uppercase tracking-[0.2em] text-stone-400 font-medium">{project.category || 'Portfolio'}</span>
-                <h3 
-                  data-title-ua={project.titleUa} 
-                  data-title-en={project.titleEn || project.titleUa} 
-                  class="project-title font-serif text-2xl font-light text-stone-800 mt-1"
-                >
-                  {project.titleUa}
-                </h3>
-                <div class="mt-4 pt-4 border-t border-stone-100 flex justify-between items-center text-xs text-stone-500 font-light">
-                  <span data-i18n-ua="Переглянути серію" data-i18n-en="View Series">Переглянути серію</span>
-                  <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-
-    <!-- СЕКЦІЯ "ПРО МЕНЕ" -->
-    <section id="about" class="bg-[#efece6] py-24 border-t border-stone-200/60">
-      <div class={`max-w-5xl mx-auto px-6 ${aboutImage ? 'grid grid-cols-1 md:grid-cols-2 gap-12 items-center' : 'text-center max-w-2xl'}`}>
-        <div>
-          <span class="text-xs uppercase tracking-[0.25em] text-stone-400">About</span>
-          <h2 data-i18n-ua="Про автора" data-i18n-en="About the Author" class="font-serif text-3xl md:text-4xl font-light mt-2 italic">
-            Про автора
-          </h2>
-          <p 
-            data-i18n-ua={aboutUa} 
-            data-i18n-en={aboutEn} 
-            class="text-sm leading-relaxed text-stone-600 mt-6 font-light"
-          >
-            {aboutUa}
-          </p>
-        </div>
-
-        {aboutImage && (
-          <div class="relative flex justify-center">
-            <img 
-              src={aboutImage} 
-              alt="About photographer" 
-              class="w-80 h-96 object-cover rounded-lg shadow-xl border-4 border-white"
-            />
+    <!-- БЛОК "ОСТАННІ ПУБЛІКАЦІЇ" -->
+    {recentProjects.length > 0 && (
+      <section class="max-w-7xl mx-auto px-6 py-16 bg-[#efece6] border-b border-stone-200">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full font-medium">New Release</span>
+            <h2 data-i18n-ua="Останні публікації" data-i18n-en="Recent Releases" class="font-serif text-3xl font-light mt-2 italic">
+              Останні публікації
+            </h2>
           </div>
-        )}
-      </div>
-    </section>
+          <a href="/gallery" data-i18n-ua="Усі проєкти →" data-i18n-en="All Projects →" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
+            Усі проєкти →
+          </a>
+        </div>
 
-    <!-- КЛІЄНТСЬКИЙ СКРИПТ ПЕРЕКЛАДУ -->
-    <script>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {recentProjects.map((project: any) => {
+            const rawCover = project.coverUrl || project.mainImageUrl || project.galleryUrls?.[0];
+            const cover = getHighResUrl(rawCover, 1600);
+            return (
+              <a href={`/projects/${project.slug}`} class="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition border border-stone-200/60">
+                <div class="h-64 overflow-hidden bg-stone-100">
+                  {cover ? (
+                    <img src={cover} alt={project.titleUa || 'Project'} class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                  ) : (
+                    <div class="w-full h-full bg-stone-200 flex items-center justify-center text-xs text-stone-400">
+                      Немає зображення
+                    </div>
+                  )}
+                </div>
+                <div class="p-4">
+                  <h3 data-title-ua={project.titleUa} data-title-en={project.titleEn || project.titleUa} class="project-title font-serif text-xl font-light text-stone-800">
+                    {project.titleUa}
+                  </h3>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    <!-- БЛОК "ОБРАНІ ЗНІМКИ" -->
+    {featuredPhotos.length > 0 && (
+      <section class="max-w-7xl mx-auto px-6 py-20">
+        <div class="text-center mb-12">
+          <span class="text-xs uppercase tracking-[0.25em] text-stone-400">Featured Photos</span>
+          <h2 data-i18n-ua="Обрані знімки" data-i18n-en="Featured Shots" class="font-serif text-3xl md:text-4xl font-light mt-2 italic">
+            Обрані знімки
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {featuredPhotos.map((url: string, index: number) => (
+            <div class="relative h-96 rounded-xl overflow-hidden shadow-sm group cursor-pointer border border-stone-200/60">
+              <img 
+                src={url} 
+                alt={`Featured photo ${index + 1}`} 
+                data-index={index}
+                class="featured-photo w-full h-full object-cover group-hover:scale-105 transition duration-700" 
+              />
+            </div>
+          ))}
+        </div>
+
+        <div class="text-center mt-12">
+          <a href="/gallery" data-i18n-ua="Перейти до повної галереї" data-i18n-en="Go to full gallery" class="inline-block px-8 py-3 border border-stone-800 text-stone-800 text-xs uppercase tracking-widest hover:bg-stone-800 hover:text-white transition rounded-full">
+            Перейти до повної галереї
+          </a>
+        </div>
+      </section>
+    )}
+
+    <!-- LIGHTBOX ДЛЯ ОБРАНИХ ЗНІМКІВ -->
+    <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden items-center justify-between p-4 sm:p-10 select-none">
+      <button id="close-btn" class="absolute top-6 right-8 text-white text-4xl font-light hover:opacity-75 transition z-10 cursor-pointer">&times;</button>
+      <div id="counter" class="absolute top-8 left-8 text-white/70 text-xs tracking-widest font-mono"></div>
+
+      <button id="prev-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">‹</button>
+      <div class="max-w-full max-h-[85vh] flex items-center justify-center">
+        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl transition-all duration-300" />
+      </div>
+      <button id="next-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">›</button>
+    </div>
+
+    <script define:vars={{ featuredPhotos }}>
       const menuBtn = document.getElementById('mobile-menu-btn');
       const mobileMenu = document.getElementById('mobile-menu');
 
@@ -198,15 +226,7 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
         mobileMenu?.classList.toggle('flex');
       });
 
-      document.querySelectorAll('.mobile-link').forEach(link => {
-        link.addEventListener('click', () => {
-          mobileMenu?.classList.add('hidden');
-          mobileMenu?.classList.remove('flex');
-        });
-      });
-
-      function switchLanguage(lang: 'ua' | 'en') {
-        // Оновлюємо вигляд кнопок
+      function switchLanguage(lang) {
         document.querySelectorAll('.lang-ua').forEach(btn => {
           if (lang === 'ua') btn.classList.add('font-bold', 'text-black', 'underline', 'underline-offset-4');
           else btn.classList.remove('font-bold', 'text-black', 'underline', 'underline-offset-4');
@@ -217,18 +237,14 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
           else btn.classList.remove('font-bold', 'text-black', 'underline', 'underline-offset-4');
         });
 
-        // Перекладаємо текстові блоки
         document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
-          const target = el as HTMLElement;
-          const text = target.getAttribute(`data-i18n-${lang}`);
-          if (text) target.textContent = text;
+          const text = el.getAttribute(`data-i18n-${lang}`);
+          if (text) el.textContent = text;
         });
 
-        // Перекладаємо заголовки фотопроєктів
         document.querySelectorAll('.project-title').forEach((el) => {
-          const target = el as HTMLElement;
-          const title = target.getAttribute(`data-title-${lang}`);
-          if (title) target.textContent = title;
+          const title = el.getAttribute(`data-title-${lang}`);
+          if (title) el.textContent = title;
         });
 
         localStorage.setItem('preferred_lang', lang);
@@ -237,8 +253,63 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
       document.querySelectorAll('.lang-ua').forEach(btn => btn.addEventListener('click', () => switchLanguage('ua')));
       document.querySelectorAll('.lang-en').forEach(btn => btn.addEventListener('click', () => switchLanguage('en')));
 
-      const savedLang = (localStorage.getItem('preferred_lang') as 'ua' | 'en') || 'ua';
+      const savedLang = localStorage.getItem('preferred_lang') || 'ua';
       switchLanguage(savedLang);
+
+      // Lightbox логіка
+      let currentIndex = 0;
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const counter = document.getElementById('counter');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const closeBtn = document.getElementById('close-btn');
+
+      function showImage(index) {
+        if (!featuredPhotos || featuredPhotos.length === 0) return;
+        if (index < 0) index = featuredPhotos.length - 1;
+        if (index >= featuredPhotos.length) index = 0;
+        
+        currentIndex = index;
+        lightboxImg.src = featuredPhotos[currentIndex];
+        counter.textContent = `${currentIndex + 1} / ${featuredPhotos.length}`;
+      }
+
+      function openLightbox(index) {
+        showImage(index);
+        lightbox?.classList.remove('hidden');
+        lightbox?.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLightbox() {
+        lightbox?.classList.add('hidden');
+        lightbox?.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+      }
+
+      document.querySelectorAll('.featured-photo').forEach(img => {
+        img.addEventListener('click', (e) => {
+          const index = parseInt(e.target.getAttribute('data-index') || '0');
+          openLightbox(index);
+        });
+      });
+
+      prevBtn?.addEventListener('click', (e) => { e.stopPropagation(); showImage(currentIndex - 1); });
+      nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); showImage(currentIndex + 1); });
+      closeBtn?.addEventListener('click', closeLightbox);
+
+      lightbox?.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (lightbox?.classList.contains('flex')) {
+          if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
+          if (e.key === 'ArrowRight') showImage(currentIndex + 1);
+          if (e.key === 'Escape') closeLightbox();
+        }
+      });
     </script>
   </body>
 </html>

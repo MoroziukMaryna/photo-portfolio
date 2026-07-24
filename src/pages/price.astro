@@ -1,0 +1,125 @@
+---
+import { sanityClient } from 'sanity:client';
+
+const settings = await sanityClient.fetch(`
+  *[_type == "siteSettings"][0] {
+    instagram, telegram, email, phone
+  }
+`);
+---
+
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Прайс та Послуги | Portfolio</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen">
+
+    <header class="p-6 max-w-7xl mx-auto flex justify-between items-center">
+      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
+        ← На головну
+      </a>
+      <div class="flex gap-2 text-xs text-stone-500">
+        <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+        <span>|</span>
+        <button class="lang-en hover:text-black cursor-pointer">EN</button>
+      </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-12">
+      <div class="text-center mb-16">
+        <span class="text-xs uppercase tracking-[0.25em] text-stone-400">Services & Investment</span>
+        <h1 data-i18n-ua="Прайс та Послуги" data-i18n-en="Services & Prices" class="font-serif text-4xl md:text-5xl font-light italic mt-2">
+          Прайс та Послуги
+        </h1>
+      </div>
+
+      <!-- Картки тарифів -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Пакет 1 -->
+        <div class="bg-white p-8 rounded-2xl border border-stone-200/70 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-stone-400">Package 01</span>
+            <h2 data-i18n-ua="Портретна зйомка" data-i18n-en="Portrait Session" class="font-serif text-2xl font-light mt-2 mb-4">
+              Портретна зйомка
+            </h2>
+            <p class="font-serif text-3xl font-light mb-6 text-stone-800">2 500 ₴ <span class="text-xs font-sans text-stone-400">/ 1 година</span></p>
+            <ul class="text-xs text-stone-600 space-y-3 font-light border-t border-stone-100 pt-6">
+              <li data-i18n-ua="• Консультація та підбір образу/локації" data-i18n-en="• Concept & location consultation">• Консультація та підбір образу/локації</li>
+              <li data-i18n-ua="• 30+ фото в авторській обробці" data-i18n-en="• 30+ edited high-res photos">• 30+ фото в авторській обробці</li>
+              <li data-i18n-ua="• Усі вдалі вихідники" data-i18n-en="• All good RAW files">• Усі вдалі вихідники</li>
+              <li data-i18n-ua="• Готовність до 7 днів" data-i18n-en="• Delivery within 7 days">• Готовність до 7 днів</li>
+            </ul>
+          </div>
+          <a href="/about" data-i18n-ua="Забронювати" data-i18n-en="Book Now" class="mt-8 text-center block w-full py-3 border border-stone-800 text-stone-800 hover:bg-stone-800 hover:text-white transition text-xs uppercase tracking-widest rounded-full">
+            Забронювати
+          </a>
+        </div>
+
+        <!-- Пакет 2 -->
+        <div class="bg-[#efece6] p-8 rounded-2xl border border-stone-300/60 shadow-md flex flex-col justify-between relative">
+          <span class="absolute -top-3 right-6 bg-stone-800 text-white text-[9px] uppercase tracking-widest px-3 py-1 rounded-full">Popular</span>
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-stone-500">Package 02</span>
+            <h2 data-i18n-ua="Content / Fashion" data-i18n-en="Content / Fashion" class="font-serif text-2xl font-light mt-2 mb-4">
+              Content / Fashion
+            </h2>
+            <p class="font-serif text-3xl font-light mb-6 text-stone-800">4 000 ₴ <span class="text-xs font-sans text-stone-400">/ 2 години</span></p>
+            <ul class="text-xs text-stone-600 space-y-3 font-light border-t border-stone-200/60 pt-6">
+              <li data-i18n-ua="• Розробка детального мудборду" data-i18n-en="• Detailed moodboard creation">• Розробка детального мудборду</li>
+              <li data-i18n-ua="• 60+ фото в авторській ретуші" data-i18n-en="• 60+ edited high-res photos">• 60+ фото в авторській ретуші</li>
+              <li data-i18n-ua="• Короткі відео для Reels/TikTok" data-i18n-en="• Short video clips for Reels/TikTok">• Короткі відео для Reels/TikTok</li>
+              <li data-i18n-ua="• Готовність до 5 днів" data-i18n-en="• Delivery within 5 days">• Готовність до 5 днів</li>
+            </ul>
+          </div>
+          <a href="/about" data-i18n-ua="Забронювати" data-i18n-en="Book Now" class="mt-8 text-center block w-full py-3 bg-stone-800 text-white hover:bg-stone-900 transition text-xs uppercase tracking-widest rounded-full shadow">
+            Забронювати
+          </a>
+        </div>
+
+        <!-- Пакет 3 -->
+        <div class="bg-white p-8 rounded-2xl border border-stone-200/70 shadow-sm flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <span class="text-[10px] uppercase tracking-[0.2em] text-stone-400">Package 03</span>
+            <h2 data-i18n-ua="Love Story / Парна" data-i18n-en="Love Story / Couple" class="font-serif text-2xl font-light mt-2 mb-4">
+              Love Story / Парна
+            </h2>
+            <p class="font-serif text-3xl font-light mb-6 text-stone-800">3 500 ₴ <span class="text-xs font-sans text-stone-400">/ 1.5 години</span></p>
+            <ul class="text-xs text-stone-600 space-y-3 font-light border-t border-stone-100 pt-6">
+              <li data-i18n-ua="• Жива репортажна та постановочна зйомка" data-i18n-en="• Lifestyle & candid couple portraits">• Жива репортажна та постановочна зйомка</li>
+              <li data-i18n-ua="• 45+ опрацьованих фотографій" data-i18n-en="• 45+ edited high-res photos">• 45+ опрацьованих фотографій</li>
+              <li data-i18n-ua="• Онлайн-галерея для завантаження" data-i18n-en="• Private online web gallery">• Онлайн-галерея для завантаження</li>
+              <li data-i18n-ua="• Готовність до 7 днів" data-i18n-en="• Delivery within 7 days">• Готовність до 7 днів</li>
+            </ul>
+          </div>
+          <a href="/about" data-i18n-ua="Забронювати" data-i18n-en="Book Now" class="mt-8 text-center block w-full py-3 border border-stone-800 text-stone-800 hover:bg-stone-800 hover:text-white transition text-xs uppercase tracking-widest rounded-full">
+            Забронювати
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      function switchLanguage(lang: 'ua' | 'en') {
+        document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
+          const target = el as HTMLElement;
+          const text = target.getAttribute(`data-i18n-${lang}`);
+          if (text) target.textContent = text;
+        });
+
+        localStorage.setItem('preferred_lang', lang);
+      }
+
+      document.querySelector('.lang-ua')?.addEventListener('click', () => switchLanguage('ua'));
+      document.querySelector('.lang-en')?.addEventListener('click', () => switchLanguage('en'));
+
+      const savedLang = (localStorage.getItem('preferred_lang') as 'ua' | 'en') || 'ua';
+      switchLanguage(savedLang);
+    </script>
+  </body>
+</html>

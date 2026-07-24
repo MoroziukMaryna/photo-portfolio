@@ -9,13 +9,25 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 const project = await sanityClient.fetch(`
   *[_type == "project" && slug.current == $slug][0] {
-    titleUa, titleEn, category,
+    titleUa, titleEn, category, descriptionUa, descriptionEn,
     "mainImageUrl": mainImage.asset->url,
     "galleryUrls": gallery[].asset->url
   }
 `, { slug });
 
 const gallery = project?.galleryUrls || [];
+
+const categoryTranslations: Record<string, { ua: string; en: string }> = {
+  portrait: { ua: 'Портрет', en: 'Portrait' },
+  fashion: { ua: 'Фешн', en: 'Fashion' },
+  studio: { ua: 'Студійна', en: 'Studio' },
+  lovestory: { ua: 'Love Story', en: 'Love Story' },
+  wedding: { ua: 'Весільна', en: 'Wedding' },
+};
+
+const catKey = (project?.category || '').toLowerCase();
+const catUa = categoryTranslations[catKey]?.ua || project?.category || 'Портфоліо';
+const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfolio';
 ---
 
 <html lang="uk">
@@ -31,12 +43,19 @@ const gallery = project?.galleryUrls || [];
       <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
         ← На головну
       </a>
-      <span class="text-xs uppercase tracking-widest text-stone-400">{project?.category}</span>
+      <span 
+        id="project-cat"
+        data-cat-ua={catUa}
+        data-cat-en={catEn}
+        class="text-xs uppercase tracking-widest text-stone-400"
+      >
+        {catUa}
+      </span>
     </header>
 
     <!-- ОСНОВНИЙ КОНТЕНТ -->
     <main class="max-w-6xl mx-auto px-6 py-12">
-      <div class="text-center mb-12">
+      <div class="text-center mb-12 max-w-2xl mx-auto">
         <h1 
           id="project-title"
           data-title-ua={project?.titleUa} 
@@ -45,6 +64,18 @@ const gallery = project?.galleryUrls || [];
         >
           {project?.titleUa}
         </h1>
+
+        <!-- Підпис / Опис проєкту -->
+        {(project?.descriptionUa || project?.descriptionEn) && (
+          <p 
+            id="project-desc"
+            data-desc-ua={project?.descriptionUa || ''} 
+            data-desc-en={project?.descriptionEn || project?.descriptionUa || ''} 
+            class="text-stone-500 font-light text-sm mt-4 leading-relaxed italic"
+          >
+            {project?.descriptionUa}
+          </p>
+        )}
       </div>
 
       <p data-i18n-ua="Натисніть на фото для перегляду" data-i18n-en="Click photo to expand" class="text-center text-xs text-stone-400 mb-8 uppercase tracking-wider">
@@ -87,7 +118,6 @@ const gallery = project?.galleryUrls || [];
       const nextBtn = document.getElementById('next-btn');
       const closeBtn = document.getElementById('close-btn');
 
-      // Переклад на сторінці окремого проєкту
       const savedLang = localStorage.getItem('preferred_lang') || 'ua';
       
       document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
@@ -95,13 +125,24 @@ const gallery = project?.galleryUrls || [];
         if (text) el.textContent = text;
       });
 
+      const catEl = document.getElementById('project-cat');
+      if (catEl) {
+        const catText = catEl.getAttribute(`data-cat-${savedLang}`);
+        if (catText) catEl.textContent = catText;
+      }
+
       const titleEl = document.getElementById('project-title');
       if (titleEl) {
         const titleText = titleEl.getAttribute(`data-title-${savedLang}`);
         if (titleText) titleEl.textContent = titleText;
       }
 
-      // Логіка галереї
+      const descEl = document.getElementById('project-desc');
+      if (descEl) {
+        const descText = descEl.getAttribute(`data-desc-${savedLang}`);
+        if (descText) descEl.textContent = descText;
+      }
+
       function showImage(index) {
         if (index < 0) index = gallery.length - 1;
         if (index >= gallery.length) index = 0;

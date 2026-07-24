@@ -4,7 +4,7 @@ export default {
   type: 'document',
   fields: [
     {
-      name: 'title',
+      name: 'titleUa',
       title: 'Назва проєкту (UA)',
       type: 'string',
       validation: (Rule: any) => Rule.required(),
@@ -19,17 +19,23 @@ export default {
       title: 'URL-адреса (Slug)',
       type: 'slug',
       options: {
-        source: 'title',
+        source: 'titleUa',
         maxLength: 96,
       },
       validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: 'isFeatured',
+      title: 'Показувати в "Обраних роботах" на головній?',
+      type: 'boolean',
+      initialValue: false,
     },
     {
       name: 'coverImage',
       title: 'Обкладинка проєкту',
       type: 'image',
       options: {
-        hotspot: true, // Дозволяє кадрувати обличчя/фокусні точки
+        hotspot: true,
       },
       validation: (Rule: any) => Rule.required(),
     },
@@ -40,9 +46,11 @@ export default {
       options: {
         list: [
           { title: 'Портрети', value: 'portrait' },
-          { title: 'Фешн / Lifestlye', value: 'fashion' },
+          { title: 'Фешн / Lifestyle', value: 'fashion' },
+          { title: 'Студійна', value: 'studio' },
+          { title: 'Love Story', value: 'lovestory' },
+          { title: 'Весільна', value: 'wedding' },
           { title: 'Репортаж / Події', value: 'events' },
-          { title: 'Пейзажі / Архітектура', value: 'landscape' },
         ],
       },
     },
@@ -53,7 +61,7 @@ export default {
       of: [{ type: 'image', options: { hotspot: true } }],
     },
     {
-      name: 'description',
+      name: 'descriptionUa',
       title: 'Опис проєкту (UA)',
       type: 'text',
     },

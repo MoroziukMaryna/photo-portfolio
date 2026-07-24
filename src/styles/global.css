@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@layer base {
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+}
