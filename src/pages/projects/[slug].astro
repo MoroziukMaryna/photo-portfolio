@@ -36,61 +36,93 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{project?.titleUa} | Portfolio</title>
     <link rel="stylesheet" href="/src/styles/global.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen">
+  <body class="bg-[#232220] text-[#fbf9f5] min-h-screen pt-24 font-serif text-lg">
+
     <!-- ШАПКА -->
-    <header class="p-6 max-w-7xl mx-auto flex justify-between items-center">
-      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
-        ← На головну
-      </a>
-      <span 
-        id="project-cat"
-        data-cat-ua={catUa}
-        data-cat-en={catEn}
-        class="text-xs uppercase tracking-widest text-stone-400"
-      >
-        {catUa}
-      </span>
+    <header class="site-header fixed top-0 left-0 right-0 z-50 pt-5 pb-5">
+      <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        
+        <!-- ЛІВА ЧАСТИНА: Посилання "Назад" + Назва категорії збоку -->
+        <div class="flex items-center gap-6">
+          <a href="/gallery" data-i18n-ua="← Галерея" data-i18n-en="← Gallery" class="site-nav-link text-xs uppercase tracking-[0.2em] text-[#fbf9f5] hover:opacity-80 transition font-medium">
+            ← Галерея
+          </a>
+          <span class="text-stone-600 text-xs">|</span>
+          <span 
+            id="project-cat"
+            data-cat-ua={catUa}
+            data-cat-en={catEn}
+            class="text-xs uppercase tracking-[0.25em] text-stone-400 font-light"
+          >
+            {catUa}
+          </span>
+        </div>
+
+        <!-- ПРАВА ЧАСТИНА: М'які спокійні капсули мови та теми -->
+        <div class="flex items-center gap-3 text-sm font-light tracking-wider">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/40 bg-black/30 backdrop-blur-sm">
+            <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-[#fbf9f5]/20 text-[#fbf9f5]">UA</button>
+            <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-400 hover:text-white">EN</button>
+          </div>
+
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/40 bg-black/30 backdrop-blur-sm">
+            <button id="theme-toggle" class="px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
+              <svg id="theme-icon-moon" class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M21.75 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.137 2.57-7.676 6.22-9.11a.75.75 0 01.916.92 7.502 7.502 0 009.244 9.244.75.75 0 01.92.916z"/>
+              </svg>
+              <svg id="theme-icon-sun" class="w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.061-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.061-1.06l-1.59-1.591z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- ОСНОВНИЙ КОНТЕНТ -->
-    <main class="max-w-6xl mx-auto px-6 py-12">
-      <div class="text-center mb-12 max-w-2xl mx-auto">
+    <main class="max-w-6xl mx-auto px-6 py-8">
+      <div class="text-center mb-10 max-w-2xl mx-auto">
+        <!-- ЯСРАВІШИЙ ЧІТКИЙ ЗАГОЛОВОК -->
         <h1 
           id="project-title"
           data-title-ua={project?.titleUa} 
           data-title-en={project?.titleEn || project?.titleUa}
-          class="font-serif text-4xl md:text-5xl font-light italic"
+          class="text-4xl md:text-6xl font-light italic text-[#fbf9f5] tracking-wide"
         >
           {project?.titleUa}
         </h1>
 
-        <!-- Підпис / Опис проєкту -->
         {(project?.descriptionUa || project?.descriptionEn) && (
           <p 
             id="project-desc"
             data-desc-ua={project?.descriptionUa || ''} 
             data-desc-en={project?.descriptionEn || project?.descriptionUa || ''} 
-            class="text-stone-500 font-light text-sm mt-4 leading-relaxed italic"
+            class="text-stone-300 font-light text-lg sm:text-xl mt-3 leading-relaxed italic"
           >
             {project?.descriptionUa}
           </p>
         )}
       </div>
 
-      <p data-i18n-ua="Натисніть на фото для перегляду" data-i18n-en="Click photo to expand" class="text-center text-xs text-stone-400 mb-8 uppercase tracking-wider">
+      <p data-i18n-ua="Натисніть на фото для перегляду" data-i18n-en="Click photo to expand" class="text-center text-xs text-stone-400 mb-8 uppercase tracking-[0.2em] font-light">
         Натисніть на фото для перегляду
       </p>
 
       {gallery.length > 0 && (
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {gallery.map((url: string, index: number) => (
-            <img 
-              src={url} 
-              alt={`${project.titleUa} ${index + 1}`}
-              data-index={index}
-              class="gallery-img w-full h-[400px] object-cover rounded-lg shadow-md cursor-pointer hover:scale-[1.02] transition duration-300"
-            />
+            <div class="rounded-xl overflow-hidden shadow-lg border border-stone-700/40 group bg-stone-800/50">
+              <img 
+                src={url} 
+                alt={`${project.titleUa} ${index + 1}`}
+                data-index={index}
+                class="gallery-img w-full h-[420px] object-cover cursor-pointer group-hover:scale-105 transition duration-500"
+              />
+            </div>
           ))}
         </div>
       )}
@@ -109,8 +141,88 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
     </div>
 
     <script define:vars={{ gallery }}>
-      let currentIndex = 0;
+      // Перемикач теми
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeIconMoon = document.getElementById('theme-icon-moon');
+      const themeIconSun = document.getElementById('theme-icon-sun');
 
+      function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        if (isLight) {
+          themeIconMoon?.classList.add('hidden');
+          themeIconSun?.classList.remove('hidden');
+        } else {
+          themeIconMoon?.classList.remove('hidden');
+          themeIconSun?.classList.add('hidden');
+        }
+        localStorage.setItem('preferred_theme', isLight ? 'light' : 'dark');
+      }
+
+      themeToggle?.addEventListener('click', toggleTheme);
+
+      if (localStorage.getItem('preferred_theme') === 'light') {
+        document.body.classList.add('light-theme');
+        themeIconMoon?.classList.add('hidden');
+        themeIconSun?.classList.remove('hidden');
+      }
+
+      // Перемикання мов
+      function switchLanguage(lang) {
+        document.querySelectorAll('.lang-ua').forEach(btn => {
+          if (lang === 'ua') {
+            btn.classList.add('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.remove('lang-btn-inactive', 'text-stone-400');
+          } else {
+            btn.classList.remove('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.add('lang-btn-inactive', 'text-stone-400');
+          }
+        });
+
+        document.querySelectorAll('.lang-en').forEach(btn => {
+          if (lang === 'en') {
+            btn.classList.add('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.remove('lang-btn-inactive', 'text-stone-400');
+          } else {
+            btn.classList.remove('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.add('lang-btn-inactive', 'text-stone-400');
+          }
+        });
+
+        document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
+          const text = el.getAttribute(`data-i18n-${lang}`);
+          if (text) el.textContent = text;
+        });
+
+        const catEl = document.getElementById('project-cat');
+        if (catEl) {
+          const catText = catEl.getAttribute(`data-cat-${lang}`);
+          if (catText) catEl.textContent = catText;
+        }
+
+        const titleEl = document.getElementById('project-title');
+        if (titleEl) {
+          const titleText = titleEl.getAttribute(`data-title-${lang}`);
+          if (titleText) titleEl.textContent = titleText;
+        }
+
+        const descEl = document.getElementById('project-desc');
+        if (descEl) {
+          const descText = descEl.getAttribute(`data-desc-${lang}`);
+          if (descText) descEl.textContent = descText;
+        }
+
+        localStorage.setItem('preferred_lang', lang);
+      }
+
+      document.querySelectorAll('.lang-ua').forEach(btn => btn.addEventListener('click', () => switchLanguage('ua')));
+      document.querySelectorAll('.lang-en').forEach(btn => btn.addEventListener('click', () => switchLanguage('en')));
+
+      const savedLang = localStorage.getItem('preferred_lang') || 'ua';
+      switchLanguage(savedLang);
+
+      // Lightbox
+      let currentIndex = 0;
       const lightbox = document.getElementById('lightbox');
       const lightboxImg = document.getElementById('lightbox-img');
       const counter = document.getElementById('counter');
@@ -118,35 +230,10 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
       const nextBtn = document.getElementById('next-btn');
       const closeBtn = document.getElementById('close-btn');
 
-      const savedLang = localStorage.getItem('preferred_lang') || 'ua';
-      
-      document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
-        const text = el.getAttribute(`data-i18n-${savedLang}`);
-        if (text) el.textContent = text;
-      });
-
-      const catEl = document.getElementById('project-cat');
-      if (catEl) {
-        const catText = catEl.getAttribute(`data-cat-${savedLang}`);
-        if (catText) catEl.textContent = catText;
-      }
-
-      const titleEl = document.getElementById('project-title');
-      if (titleEl) {
-        const titleText = titleEl.getAttribute(`data-title-${savedLang}`);
-        if (titleText) titleEl.textContent = titleText;
-      }
-
-      const descEl = document.getElementById('project-desc');
-      if (descEl) {
-        const descText = descEl.getAttribute(`data-desc-${savedLang}`);
-        if (descText) descEl.textContent = descText;
-      }
-
       function showImage(index) {
+        if (!gallery || gallery.length === 0) return;
         if (index < 0) index = gallery.length - 1;
         if (index >= gallery.length) index = 0;
-        
         currentIndex = index;
         lightboxImg.src = gallery[currentIndex];
         counter.textContent = `${currentIndex + 1} / ${gallery.length}`;
@@ -176,9 +263,7 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
       nextBtn?.addEventListener('click', (e) => { e.stopPropagation(); showImage(currentIndex + 1); });
       closeBtn?.addEventListener('click', closeLightbox);
 
-      lightbox?.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-      });
+      lightbox?.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 
       document.addEventListener('keydown', (e) => {
         if (lightbox?.classList.contains('flex')) {

@@ -1,10 +1,151 @@
 @import "tailwindcss";
 
 @layer base {
+  body {
+    background-color: #232220;
+    color: #f5f2eb;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 18px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Світла тема для основного фону та блоків */
+  body.light-theme {
+    background-color: #f6f4ef !important;
+    color: #23211f !important;
+  }
+
   img {
     image-rendering: -webkit-optimize-contrast;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     transform: translateZ(0);
   }
+}
+
+/* ЄДИНА ЛЕГКА НАПІВПРОЗОРА ШИРМА ДЛЯ ВСІХ ТЕМ */
+.site-header {
+  background: linear-gradient(
+    to bottom, 
+    rgba(35, 34, 32, 0.55) 0%, 
+    rgba(35, 34, 32, 0.2) 65%, 
+    rgba(0, 0, 0, 0) 100%
+  ) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ТЕКСТ ТА НАВІГАЦІЯ В ШАПЦІ З ТІННЮ ДЛЯ КРИШТАЛЕВОЇ ЧИТАБЕЛЬНОСТІ */
+.site-header .header-logo,
+.site-header .site-nav-link {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  /* М'яка контрастна тінь навколо літер */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+.site-header .site-nav-link:hover,
+.site-header .site-nav-link.active {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ЄДИНІ СТИЛЬНІ ТЕМНІ СКЛЯНІ КАПСУЛИ ДЛЯ МОВИ ТА ТЕМИ */
+.pill-container {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.lang-btn-active {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.lang-btn-inactive {
+  color: #d6d1c7 !important;
+}
+
+#theme-toggle {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* HERO-БАНЕР */
+.hero-section h1,
+.hero-section p {
+  color: #ffffff !important;
+}
+
+.hero-btn-primary {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #111111 !important;
+  font-weight: 600 !important;
+}
+
+.hero-btn-primary:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+.hero-btn-secondary {
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  color: #ffffff !important;
+}
+
+/* СТИЛІ КАРТОК У СВІТЛІЙ ТЕМІ */
+body.light-theme .site-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e0d8 !important;
+  color: #23211f !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .site-card-popular {
+  background-color: #eae6de !important;
+  border-color: #d2cbbe !important;
+}
+
+body.light-theme .card-price,
+body.light-theme main h1, 
+body.light-theme main h2,
+body.light-theme main h3 {
+  color: #111111 !important;
+}
+
+body.light-theme .text-stone-200,
+body.light-theme .text-stone-300,
+body.light-theme .text-stone-400 {
+  color: #4a4540 !important;
+}
+
+body.light-theme .time-opt {
+  border-color: #cfc9be !important;
+  color: #55504a !important;
+}
+
+body.light-theme .time-opt.active {
+  background-color: #23211f !important;
+  color: #ffffff !important;
+  border-color: #23211f !important;
+}
+
+body.light-theme .popular-badge {
+  background-color: #23211f !important;
+  color: #ffffff !important;
+}
+
+/* АНІМАЦІЇ ПОЯВИ */
+.fade-in-element {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-in-element.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
