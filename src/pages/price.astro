@@ -18,16 +18,42 @@ const settings = await sanityClient.fetch(`
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen">
+  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen pt-24">
 
-    <header class="p-6 max-w-7xl mx-auto flex justify-between items-center">
-      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
-        ← На головну
-      </a>
-      <div class="flex gap-2 text-xs text-stone-500">
-        <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
-        <span>|</span>
-        <button class="lang-en hover:text-black cursor-pointer">EN</button>
+    <!-- ШАПКА -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-stone-200/50">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="font-serif text-xl md:text-2xl tracking-widest uppercase font-light">
+          PHOTOGRAPHER
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest text-stone-600 font-light">
+          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="hover:text-black transition">Галерея</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="font-bold text-black border-b border-black pb-0.5">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-2 text-xs font-light tracking-wider text-stone-500">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en hover:text-black cursor-pointer">EN</button>
+        </div>
+
+        <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">
+          ☰
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-stone-200 px-6 py-6 flex-col gap-4 text-center">
+        <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Галерея</a>
+        <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-900 font-bold py-2">Прайс</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
+        
+        <div class="pt-4 border-t border-stone-200 flex justify-center gap-4 text-sm">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en text-stone-500 cursor-pointer">EN</button>
+        </div>
       </div>
     </header>
 
@@ -39,7 +65,6 @@ const settings = await sanityClient.fetch(`
         </h1>
       </div>
 
-      <!-- Картки тарифів -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <!-- Пакет 1 -->
         <div class="bg-white p-8 rounded-2xl border border-stone-200/70 shadow-sm flex flex-col justify-between hover:shadow-md transition">
@@ -105,7 +130,25 @@ const settings = await sanityClient.fetch(`
     </main>
 
     <script>
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      menuBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+        mobileMenu?.classList.toggle('flex');
+      });
+
       function switchLanguage(lang: 'ua' | 'en') {
+        document.querySelectorAll('.lang-ua').forEach(btn => {
+          if (lang === 'ua') btn.classList.add('font-bold', 'text-black', 'underline', 'underline-offset-4');
+          else btn.classList.remove('font-bold', 'text-black', 'underline', 'underline-offset-4');
+        });
+
+        document.querySelectorAll('.lang-en').forEach(btn => {
+          if (lang === 'en') btn.classList.add('font-bold', 'text-black', 'underline', 'underline-offset-4');
+          else btn.classList.remove('font-bold', 'text-black', 'underline', 'underline-offset-4');
+        });
+
         document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
           const target = el as HTMLElement;
           const text = target.getAttribute(`data-i18n-${lang}`);
@@ -115,8 +158,8 @@ const settings = await sanityClient.fetch(`
         localStorage.setItem('preferred_lang', lang);
       }
 
-      document.querySelector('.lang-ua')?.addEventListener('click', () => switchLanguage('ua'));
-      document.querySelector('.lang-en')?.addEventListener('click', () => switchLanguage('en'));
+      document.querySelectorAll('.lang-ua').forEach(btn => btn.addEventListener('click', () => switchLanguage('ua')));
+      document.querySelectorAll('.lang-en').forEach(btn => btn.addEventListener('click', () => switchLanguage('en')));
 
       const savedLang = (localStorage.getItem('preferred_lang') as 'ua' | 'en') || 'ua';
       switchLanguage(savedLang);

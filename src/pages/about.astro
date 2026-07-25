@@ -5,14 +5,23 @@ const settings = await sanityClient.fetch(`
   *[_type == "siteSettings"][0] {
     "aboutImageUrl": aboutImage.asset->url,
     photographerName,
+    photographerNameEn,
     aboutTextUa,
     aboutTextEn,
     instagram, telegram, email, phone
   }
 `);
 
-const name = settings?.photographerName || 'Maryna M';
-const aboutImage = settings?.aboutImageUrl;
+const nameUa = settings?.photographerName || 'Марина Морозюк';
+const nameEn = settings?.photographerNameEn || 'Maryna Moroziuk';
+
+function getHighResUrl(url: string | undefined, width = 1600) {
+  if (!url) return '';
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&q=90&auto=format`;
+}
+
+const aboutImage = getHighResUrl(settings?.aboutImageUrl, 1600);
 const aboutUa = settings?.aboutTextUa || "Моя мета — зберігати щирі емоції, естетику моменту та унікальну атмосферу кожної зйомки.";
 const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions, aesthetic moments, and the unique atmosphere of every photoshoot.";
 ---
@@ -27,16 +36,42 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen flex flex-col justify-between">
+  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen flex flex-col justify-between pt-24">
 
-    <header class="p-6 max-w-7xl mx-auto w-full flex justify-between items-center">
-      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
-        ← На головну
-      </a>
-      <div class="flex gap-2 text-xs text-stone-500">
-        <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
-        <span>|</span>
-        <button class="lang-en hover:text-black cursor-pointer">EN</button>
+    <!-- ШАПКА -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-stone-200/50">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="font-serif text-xl md:text-2xl tracking-widest uppercase font-light">
+          PHOTOGRAPHER
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest text-stone-600 font-light">
+          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="hover:text-black transition">Галерея</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="hover:text-black transition">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="font-bold text-black border-b border-black pb-0.5">Про мене</a>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-2 text-xs font-light tracking-wider text-stone-500">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en hover:text-black cursor-pointer">EN</button>
+        </div>
+
+        <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">
+          ☰
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-stone-200 px-6 py-6 flex-col gap-4 text-center">
+        <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Галерея</a>
+        <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Прайс</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-900 font-bold py-2">Про мене</a>
+        
+        <div class="pt-4 border-t border-stone-200 flex justify-center gap-4 text-sm">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en text-stone-500 cursor-pointer">EN</button>
+        </div>
       </div>
     </header>
 
@@ -44,13 +79,20 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {aboutImage && (
           <div class="flex justify-center">
-            <img src={aboutImage} alt="About Photographer" class="w-80 h-[450px] object-cover rounded-2xl shadow-xl border-4 border-white" />
+            <img src={aboutImage} alt={nameUa} class="w-80 h-[450px] object-cover rounded-2xl shadow-xl border-4 border-white" />
           </div>
         )}
 
         <div>
           <span class="text-xs uppercase tracking-[0.25em] text-stone-400">About Author</span>
-          <h1 class="font-serif text-4xl md:text-5xl font-light italic mt-2 mb-6">{name}</h1>
+          
+          <h1 
+            data-i18n-ua={nameUa} 
+            data-i18n-en={nameEn} 
+            class="font-serif text-4xl md:text-5xl font-light italic mt-2 mb-6"
+          >
+            {nameUa}
+          </h1>
           
           <p data-i18n-ua={aboutUa} data-i18n-en={aboutEn} class="text-sm leading-relaxed text-stone-600 font-light mb-8">
             {aboutUa}
@@ -99,10 +141,18 @@ const aboutEn = settings?.aboutTextEn || "My goal is to capture genuine emotions
     </main>
 
     <footer class="p-6 text-center text-[10px] text-stone-400 tracking-widest uppercase">
-      © {new Date().getFullYear()} {name}. All rights reserved.
+      © {new Date().getFullYear()} <span data-i18n-ua={nameUa} data-i18n-en={nameEn}>{nameUa}</span>. All rights reserved.
     </footer>
 
     <script>
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      menuBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+        mobileMenu?.classList.toggle('flex');
+      });
+
       function switchLanguage(lang: 'ua' | 'en') {
         document.querySelectorAll('.lang-ua').forEach(btn => {
           if (lang === 'ua') btn.classList.add('font-bold', 'text-black', 'underline', 'underline-offset-4');

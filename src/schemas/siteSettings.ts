@@ -11,6 +11,11 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'photographerNameEn',
+      title: 'Ім\'я фотографа (EN)',
+      type: 'string',
+   }),
+    defineField({
       name: 'catchPhraseUa',
       title: 'Кетч-фраза / Афоризм на банері (UA)',
       type: 'string',

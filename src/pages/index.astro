@@ -20,12 +20,12 @@ const settings = await sanityClient.fetch(`
     "heroImageUrl": heroImage.asset->url,
     "featuredPhotoUrls": featuredPhotos[].asset->url,
     photographerName,
+    photographerNameEn,
     catchPhraseUa,
     catchPhraseEn
   }
 `);
 
-// Функція для безпечного покращення якості зображень від Sanity
 function getHighResUrl(url: string | undefined, width = 2000) {
   if (!url) return '';
   const separator = url.includes('?') ? '&' : '?';
@@ -38,11 +38,12 @@ const heroImage = getHighResUrl(rawHero, 2400);
 const featuredPhotosRaw: string[] = settings?.featuredPhotoUrls || [];
 const featuredPhotos = featuredPhotosRaw.map((url: string) => getHighResUrl(url, 2000));
 
-const name = settings?.photographerName || 'Maryna M';
+const nameUa = settings?.photographerName || 'Марина Морозюк';
+const nameEn = settings?.photographerNameEn || 'Maryna Moroziuk';
+
 const phraseUa = settings?.catchPhraseUa || "Зберігаю справжні емоції у кожному кадрі";
 const phraseEn = settings?.catchPhraseEn || "Capturing genuine moments and timeless beauty";
 
-// Таймер 10 хвилин для новинок
 const RECENT_LIMIT_MS = 10 * 60 * 1000; 
 const now = new Date().getTime();
 
@@ -56,7 +57,7 @@ const recentProjects = allProjects.filter((p: any) => {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{name} | Portfolio</title>
+    <title>{nameUa} | Portfolio</title>
     <link rel="stylesheet" href="/src/styles/global.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,8 +74,8 @@ const recentProjects = allProjects.filter((p: any) => {
 
         <nav class="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest text-stone-600 font-light">
           <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="hover:text-black transition">Галерея</a>
-          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
           <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="hover:text-black transition">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
         </nav>
 
         <div class="hidden md:flex items-center gap-2 text-xs font-light tracking-wider text-stone-500">
@@ -90,8 +91,8 @@ const recentProjects = allProjects.filter((p: any) => {
 
       <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-stone-200 px-6 py-6 flex-col gap-4 text-center">
         <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Галерея</a>
-        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
         <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Прайс</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
         
         <div class="pt-4 border-t border-stone-200 flex justify-center gap-4 text-sm">
           <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
@@ -116,8 +117,12 @@ const recentProjects = allProjects.filter((p: any) => {
         </p>
 
         <a href="/about" class="group inline-block">
-          <h1 class="font-serif text-5xl sm:text-7xl md:text-8xl font-light italic tracking-wide drop-shadow-md mb-6 hover:opacity-90 transition">
-            {name}
+          <h1 
+            data-i18n-ua={nameUa} 
+            data-i18n-en={nameEn} 
+            class="font-serif text-5xl sm:text-7xl md:text-8xl font-light italic tracking-wide drop-shadow-md mb-6 hover:opacity-90 transition"
+          >
+            {nameUa}
           </h1>
         </a>
 
@@ -256,7 +261,6 @@ const recentProjects = allProjects.filter((p: any) => {
       const savedLang = localStorage.getItem('preferred_lang') || 'ua';
       switchLanguage(savedLang);
 
-      // Lightbox логіка
       let currentIndex = 0;
       const lightbox = document.getElementById('lightbox');
       const lightboxImg = document.getElementById('lightbox-img');

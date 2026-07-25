@@ -7,81 +7,123 @@ const projects = await sanityClient.fetch(`
     titleUa,
     titleEn,
     category,
-    descriptionUa,
-    descriptionEn,
     "slug": slug.current,
     "mainImageUrl": mainImage.asset->url,
+    "coverUrl": coverImage.asset->url,
     "galleryUrls": gallery[].asset->url
   }
 `);
 
-const categoryTranslations: Record<string, { ua: string; en: string }> = {
-  portrait: { ua: 'Портрет', en: 'Portrait' },
-  fashion: { ua: 'Фешн', en: 'Fashion' },
-  studio: { ua: 'Студійна', en: 'Studio' },
-  lovestory: { ua: 'Love Story', en: 'Love Story' },
-  wedding: { ua: 'Весільна', en: 'Wedding' },
-};
+function getHighResUrl(url: string | undefined, width = 1600) {
+  if (!url) return '';
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&q=90&auto=format`;
+}
+
+const categories = [
+  { id: 'all', ua: 'Усі', en: 'All' },
+  { id: 'portrait', ua: 'Портрет', en: 'Portrait' },
+  { id: 'fashion', ua: 'Фешн', en: 'Fashion' },
+  { id: 'studio', ua: 'Студійна', en: 'Studio' },
+  { id: 'lovestory', ua: 'Love Story', en: 'Love Story' },
+  { id: 'wedding', ua: 'Весільна', en: 'Wedding' },
+];
 ---
 
-<html lang="uk">
+<html lang="uk" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Галерея | Portfolio</title>
+    <title>Галерея робіт | Portfolio</title>
     <link rel="stylesheet" href="/src/styles/global.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen">
+  <body class="bg-[#f7f5f0] text-[#2c2a29] min-h-screen antialiased pt-24">
 
-    <header class="p-6 max-w-7xl mx-auto flex justify-between items-center">
-      <a href="/" data-i18n-ua="← На головну" data-i18n-en="← Back to home" class="text-xs uppercase tracking-widest text-stone-500 hover:text-black transition">
-        ← На головну
-      </a>
-      <div class="flex gap-2 text-xs text-stone-500">
-        <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
-        <span>|</span>
-        <button class="lang-en hover:text-black cursor-pointer">EN</button>
+    <!-- ШАПКА -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md border-b border-stone-200/50">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" class="font-serif text-xl md:text-2xl tracking-widest uppercase font-light">
+          PHOTOGRAPHER
+        </a>
+
+        <nav class="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest text-stone-600 font-light">
+          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="font-bold text-black border-b border-black pb-0.5">Галерея</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="hover:text-black transition">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="hover:text-black transition">Про мене</a>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-2 text-xs font-light tracking-wider text-stone-500">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en hover:text-black cursor-pointer">EN</button>
+        </div>
+
+        <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">
+          ☰
+        </button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg border-b border-stone-200 px-6 py-6 flex-col gap-4 text-center">
+        <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="mobile-link text-sm uppercase tracking-widest text-stone-900 font-bold py-2">Галерея</a>
+        <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Прайс</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="mobile-link text-sm uppercase tracking-widest text-stone-700 py-2">Про мене</a>
+        
+        <div class="pt-4 border-t border-stone-200 flex justify-center gap-4 text-sm">
+          <button class="lang-ua font-bold text-black underline underline-offset-4 cursor-pointer">UA</button>
+          <span>|</span>
+          <button class="lang-en text-stone-500 cursor-pointer">EN</button>
+        </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-6 py-12">
-      <div class="text-center mb-16">
-        <span class="text-xs uppercase tracking-[0.25em] text-stone-400">All Works</span>
-        <h1 data-i18n-ua="Портфоліо & Серії" data-i18n-en="Portfolio & Series" class="font-serif text-4xl md:text-5xl font-light italic mt-2">
-          Портфоліо & Серії
+    <main class="max-w-7xl mx-auto px-6 py-10">
+      <div class="text-center mb-12">
+        <span class="text-xs uppercase tracking-[0.25em] text-stone-400">Portfolio</span>
+        <h1 data-i18n-ua="Галерея робіт" data-i18n-en="Full Portfolio" class="font-serif text-4xl md:text-5xl font-light italic mt-2">
+          Галерея робіт
         </h1>
+      </div>
+
+      <div class="flex flex-wrap justify-center gap-3 md:gap-6 mb-16 text-xs uppercase tracking-widest">
+        {categories.map((cat) => (
+          <button
+            class="filter-btn px-5 py-2 rounded-full border border-stone-300 transition cursor-pointer"
+            data-category={cat.id}
+            data-i18n-ua={cat.ua}
+            data-i18n-en={cat.en}
+          >
+            {cat.ua}
+          </button>
+        ))}
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {projects.map((project: any) => {
-          const chosenCover = project.mainImageUrl || project.galleryUrls?.[0];
-          const catKey = (project.category || '').toLowerCase();
-          const catUa = categoryTranslations[catKey]?.ua || project.category || 'Портфоліо';
-          const catEn = categoryTranslations[catKey]?.en || project.category || 'Portfolio';
-
+          const rawCover = project.coverUrl || project.mainImageUrl || project.galleryUrls?.[0];
+          const cover = getHighResUrl(rawCover, 1600);
           return (
-            <a href={`/projects/${project.slug}`} class="group block bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition duration-500 border border-stone-200/60">
-              <div class="relative h-80 sm:h-96 overflow-hidden bg-stone-100">
-                {chosenCover && (
-                  <img src={chosenCover} alt={project.titleUa} class="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+            <a
+              href={`/projects/${project.slug}`}
+              class="project-card group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition border border-stone-200/60"
+              data-category={project.category}
+            >
+              <div class="h-80 overflow-hidden bg-stone-100 relative">
+                {cover ? (
+                  <img src={cover} alt={project.titleUa || 'Project'} class="w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-xs text-stone-400">Немає фото</div>
                 )}
               </div>
               <div class="p-6">
-                <span data-cat-ua={catUa} data-cat-en={catEn} class="project-category text-[10px] uppercase tracking-[0.2em] text-stone-400 font-medium">
-                  {catUa}
+                <span class="text-[10px] uppercase tracking-widest text-stone-400 block mb-1">
+                  {project.category}
                 </span>
-
-                <h2 data-title-ua={project.titleUa} data-title-en={project.titleEn || project.titleUa} class="project-title font-serif text-2xl font-light text-stone-800 mt-1">
+                <h2 data-title-ua={project.titleUa} data-title-en={project.titleEn || project.titleUa} class="project-title font-serif text-2xl font-light text-stone-800">
                   {project.titleUa}
                 </h2>
-
-                <div class="mt-4 pt-4 border-t border-stone-100 flex justify-between items-center text-xs text-stone-500 font-light">
-                  <span data-i18n-ua="Переглянути серію" data-i18n-en="View Series">Переглянути серію</span>
-                  <span>→</span>
-                </div>
               </div>
             </a>
           );
@@ -90,6 +132,14 @@ const categoryTranslations: Record<string, { ua: string; en: string }> = {
     </main>
 
     <script>
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      menuBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+        mobileMenu?.classList.toggle('flex');
+      });
+
       function switchLanguage(lang: 'ua' | 'en') {
         document.querySelectorAll('.lang-ua').forEach(btn => {
           if (lang === 'ua') btn.classList.add('font-bold', 'text-black', 'underline', 'underline-offset-4');
@@ -107,12 +157,6 @@ const categoryTranslations: Record<string, { ua: string; en: string }> = {
           if (text) target.textContent = text;
         });
 
-        document.querySelectorAll('.project-category').forEach((el) => {
-          const target = el as HTMLElement;
-          const cat = target.getAttribute(`data-cat-${lang}`);
-          if (cat) target.textContent = cat;
-        });
-
         document.querySelectorAll('.project-title').forEach((el) => {
           const target = el as HTMLElement;
           const title = target.getAttribute(`data-title-${lang}`);
@@ -127,6 +171,29 @@ const categoryTranslations: Record<string, { ua: string; en: string }> = {
 
       const savedLang = (localStorage.getItem('preferred_lang') as 'ua' | 'en') || 'ua';
       switchLanguage(savedLang);
+
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const projectCards = document.querySelectorAll('.project-card');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-category');
+
+          filterBtns.forEach(b => b.classList.remove('bg-stone-800', 'text-white'));
+          btn.classList.add('bg-stone-800', 'text-white');
+
+          projectCards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            if (cat === 'all' || cardCat === cat) {
+              (card as HTMLElement).style.display = 'block';
+            } else {
+              (card as HTMLElement).style.display = 'none';
+            }
+          });
+        });
+      });
+
+      filterBtns[0]?.classList.add('bg-stone-800', 'text-white');
     </script>
   </body>
 </html>
