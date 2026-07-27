@@ -9,7 +9,6 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Світла тема для основного фону та блоків */
   body.light-theme {
     background-color: #f6f4ef !important;
     color: #23211f !important;
@@ -23,58 +22,77 @@
   }
 }
 
-/* ЄДИНА ЛЕГКА НАПІВПРОЗОРА ШИРМА ДЛЯ ВСІХ ТЕМ */
+/* ШАПКА ТА МОБІЛЬНЕ МЕНЮ */
 .site-header {
-  background: linear-gradient(
-    to bottom, 
-    rgba(35, 34, 32, 0.55) 0%, 
-    rgba(35, 34, 32, 0.2) 65%, 
-    rgba(0, 0, 0, 0) 100%
-  ) !important;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: transparent !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* ТЕКСТ ТА НАВІГАЦІЯ В ШАПЦІ З ТІННЮ ДЛЯ КРИШТАЛЕВОЇ ЧИТАБЕЛЬНОСТІ */
 .site-header .header-logo,
 .site-header .site-nav-link {
-  color: #ffffff !important;
-  font-weight: 500 !important;
-  /* М'яка контрастна тінь навколо літер */
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7), 0 0 10px rgba(0, 0, 0, 0.4);
+  color: #f5f2eb;
+  transition: color 0.3s ease;
 }
 
 .site-header .site-nav-link:hover,
 .site-header .site-nav-link.active {
-  color: #ffffff !important;
-  border-color: #ffffff !important;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
 }
 
-/* ЄДИНІ СТИЛЬНІ ТЕМНІ СКЛЯНІ КАПСУЛИ ДЛЯ МОВИ ТА ТЕМИ */
+/* МОБІЛЬНЕ МЕНЮ У СВІТЛІЙ ТЕМІ */
+body.light-theme #mobile-menu {
+  background-color: rgba(246, 244, 239, 0.96) !important;
+  border-color: rgba(35, 33, 31, 0.15) !important;
+}
+
+body.light-theme #mobile-menu a {
+  color: #23211f !important;
+}
+
+body.light-theme #mobile-menu a:hover,
+body.light-theme #mobile-menu a.active {
+  color: #000000 !important;
+}
+
+body.light-theme #mobile-menu .border-t {
+  border-color: rgba(35, 33, 31, 0.15) !important;
+}
+
+/* КОЛЬОРИ ШРИФТІВ ШАПКИ ДЛЯ СВІТЛОЇ ТЕМИ */
+body.light-theme .site-header .header-logo,
+body.light-theme .site-header .site-nav-link {
+  color: #23211f !important;
+  font-weight: 400 !important;
+}
+
+body.light-theme .site-header .site-nav-link:hover,
+body.light-theme .site-header .site-nav-link.active {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+body.light-theme #mobile-menu-btn {
+  color: #23211f !important;
+}
+
+/* КАПСУЛИ ДЛЯ МОВИ ТА ТЕМИ */
 .pill-container {
-  border-color: rgba(255, 255, 255, 0.3) !important;
-  background-color: rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(4px);
 }
 
-.lang-btn-active {
-  background-color: rgba(255, 255, 255, 0.25) !important;
-  color: #ffffff !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+body.light-theme .pill-container {
+  border-color: rgba(35, 33, 31, 0.15) !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-.lang-btn-inactive {
-  color: #d6d1c7 !important;
+body.light-theme #theme-toggle {
+  color: #23211f !important;
 }
 
-#theme-toggle {
-  color: #ffffff !important;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
-}
-
-/* HERO-БАНЕР */
+/* HERO-БАНЕР ЗБЕРІГАЄ СВІТЛИЙ ТЕКСТ */
 .hero-section h1,
 .hero-section p {
   color: #ffffff !important;
@@ -96,17 +114,15 @@
   color: #ffffff !important;
 }
 
-/* СТИЛІ КАРТОК У СВІТЛІЙ ТЕМІ */
+/* СТИЛІ КАРТОК СВІТЛОЇ ТЕМИ (БЕЗ РАМОК) */
 body.light-theme .site-card {
   background-color: #ffffff !important;
-  border: 1px solid #e5e0d8 !important;
   color: #23211f !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
 }
 
 body.light-theme .site-card-popular {
   background-color: #eae6de !important;
-  border-color: #d2cbbe !important;
 }
 
 body.light-theme .card-price,

@@ -2,79 +2,95 @@
 import { sanityClient } from 'sanity:client';
 
 export async function getStaticPaths() {
-  const projects = await sanityClient.fetch(`*[_type == "project"] { "slug": slug.current }`);
+  const projects = await sanityClient.fetch(`*[_type == "project"]{ "slug": slug.current }`);
   return projects.map((p: any) => ({ params: { slug: p.slug } }));
 }
 
 const { slug } = Astro.params;
+
 const project = await sanityClient.fetch(`
   *[_type == "project" && slug.current == $slug][0] {
-    titleUa, titleEn, category, descriptionUa, descriptionEn,
-    "mainImageUrl": mainImage.asset->url,
+    titleUa,
+    titleEn,
+    category,
     "galleryUrls": gallery[].asset->url
   }
 `, { slug });
 
-const gallery = project?.galleryUrls || [];
+function getHighResUrl(url: string | undefined, width = 1200) {
+  if (!url) return '';
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&q=90&auto=format`;
+}
 
-const categoryTranslations: Record<string, { ua: string; en: string }> = {
-  portrait: { ua: 'Портрет', en: 'Portrait' },
-  fashion: { ua: 'Фешн', en: 'Fashion' },
-  studio: { ua: 'Студійна', en: 'Studio' },
-  lovestory: { ua: 'Love Story', en: 'Love Story' },
-  wedding: { ua: 'Весільна', en: 'Wedding' },
-};
-
-const catKey = (project?.category || '').toLowerCase();
-const catUa = categoryTranslations[catKey]?.ua || project?.category || 'Портфоліо';
-const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfolio';
+const gallery = (project?.galleryUrls || []).map((url: string) => getHighResUrl(url, 1600));
+const titleUa = project?.titleUa || 'Проєкт';
+const titleEn = project?.titleEn || project?.titleUa || 'Project';
 ---
 
-<html lang="uk">
+<html lang="uk" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{project?.titleUa} | Portfolio</title>
+    <title>{titleUa} | Portfolio</title>
     <link rel="stylesheet" href="/src/styles/global.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#232220] text-[#fbf9f5] min-h-screen pt-24 font-serif text-lg">
+  <body class="bg-[#232220] text-[#f5f2eb] min-h-screen antialiased pt-32">
 
     <!-- ШАПКА -->
-    <header class="site-header fixed top-0 left-0 right-0 z-50 pt-5 pb-5">
+    <header class="site-header fixed top-0 left-0 right-0 z-50 pt-6 pb-12">
       <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        
-        <!-- ЛІВА ЧАСТИНА: Посилання "Назад" + Назва категорії збоку -->
-        <div class="flex items-center gap-6">
-          <a href="/gallery" data-i18n-ua="← Галерея" data-i18n-en="← Gallery" class="site-nav-link text-xs uppercase tracking-[0.2em] text-[#fbf9f5] hover:opacity-80 transition font-medium">
-            ← Галерея
-          </a>
-          <span class="text-stone-600 text-xs">|</span>
-          <span 
-            id="project-cat"
-            data-cat-ua={catUa}
-            data-cat-en={catEn}
-            class="text-xs uppercase tracking-[0.25em] text-stone-400 font-light"
-          >
-            {catUa}
-          </span>
-        </div>
+        <a href="/" class="header-logo text-xl tracking-[0.25em] uppercase font-light">
+          PHOTOGRAPHER
+        </a>
 
-        <!-- ПРАВА ЧАСТИНА: М'які спокійні капсули мови та теми -->
-        <div class="flex items-center gap-3 text-sm font-light tracking-wider">
-          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/40 bg-black/30 backdrop-blur-sm">
-            <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-[#fbf9f5]/20 text-[#fbf9f5]">UA</button>
+        <nav class="hidden md:flex items-center gap-10 text-sm uppercase tracking-[0.2em] font-light">
+          <a href="/gallery" data-i18n-ua="← Галерея" data-i18n-en="← Gallery" class="site-nav-link text-stone-300 hover:text-white transition">← Галерея</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="site-nav-link text-stone-300 hover:text-white transition">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="site-nav-link text-stone-300 hover:text-white transition">Про мене</a>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-3 text-sm font-light tracking-wider">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-stone-200 text-stone-900 shadow">UA</button>
             <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-400 hover:text-white">EN</button>
           </div>
 
-          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/40 bg-black/30 backdrop-blur-sm">
-            <button id="theme-toggle" class="px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
-              <svg id="theme-icon-moon" class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="theme-toggle px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
+              <svg class="theme-icon-moon w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                 <path d="M21.75 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.137 2.57-7.676 6.22-9.11a.75.75 0 01.916.92 7.502 7.502 0 009.244 9.244.75.75 0 01.92.916z"/>
               </svg>
-              <svg id="theme-icon-sun" class="w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
+              <svg class="theme-icon-sun w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.061-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.061-1.06l-1.59-1.591z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">☰</button>
+      </div>
+
+      <div id="mobile-menu" class="hidden md:hidden bg-[#232220]/95 backdrop-blur-lg px-6 py-6 flex-col items-center gap-5 text-center mt-2 border-b border-stone-700/50 transition-colors duration-300">
+        <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Галерея</a>
+        <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Прайс</a>
+        <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Про мене</a>
+
+        <div class="flex items-center gap-4 pt-3 border-t border-stone-700/50 w-full justify-center mt-1">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-stone-200 text-stone-900 shadow">UA</button>
+            <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-400 hover:text-white">EN</button>
+          </div>
+
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="theme-toggle px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
+              <svg class="theme-icon-moon w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M21.75 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.137 2.57-7.676 6.22-9.11a.75.75 0 01.916.92 7.502 7.502 0 009.244 9.244.75.75 0 01.92.916z"/>
+              </svg>
+              <svg class="theme-icon-sun w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
                 <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.061-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.061-1.06l-1.59-1.591z"/>
               </svg>
             </button>
@@ -83,134 +99,107 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
       </div>
     </header>
 
-    <!-- ОСНОВНИЙ КОНТЕНТ -->
-    <main class="max-w-6xl mx-auto px-6 py-8">
-      <div class="text-center mb-10 max-w-2xl mx-auto">
-        <!-- ЯСРАВІШИЙ ЧІТКИЙ ЗАГОЛОВОК -->
-        <h1 
-          id="project-title"
-          data-title-ua={project?.titleUa} 
-          data-title-en={project?.titleEn || project?.titleUa}
-          class="text-4xl md:text-6xl font-light italic text-[#fbf9f5] tracking-wide"
-        >
-          {project?.titleUa}
+    <main class="max-w-6xl mx-auto px-6 py-10">
+      <div class="text-center mb-10">
+        <h1 data-title-ua={titleUa} data-title-en={titleEn} class="project-title text-4xl md:text-5xl font-light italic">
+          {titleUa}
         </h1>
-
-        {(project?.descriptionUa || project?.descriptionEn) && (
-          <p 
-            id="project-desc"
-            data-desc-ua={project?.descriptionUa || ''} 
-            data-desc-en={project?.descriptionEn || project?.descriptionUa || ''} 
-            class="text-stone-300 font-light text-lg sm:text-xl mt-3 leading-relaxed italic"
-          >
-            {project?.descriptionUa}
-          </p>
-        )}
+        <p data-i18n-ua="НАТИСНІТЬ НА ФОТО ДЛЯ ПЕРЕГЛЯДУ" data-i18n-en="CLICK ON PHOTO TO VIEW" class="text-xs uppercase tracking-[0.3em] text-stone-400 mt-3 font-light">
+          Натисніть на фото для перегляду
+        </p>
       </div>
 
-      <p data-i18n-ua="Натисніть на фото для перегляду" data-i18n-en="Click photo to expand" class="text-center text-xs text-stone-400 mb-8 uppercase tracking-[0.2em] font-light">
-        Натисніть на фото для перегляду
-      </p>
-
-      {gallery.length > 0 && (
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {gallery.map((url: string, index: number) => (
-            <div class="rounded-xl overflow-hidden shadow-lg border border-stone-700/40 group bg-stone-800/50">
-              <img 
-                src={url} 
-                alt={`${project.titleUa} ${index + 1}`}
-                data-index={index}
-                class="gallery-img w-full h-[420px] object-cover cursor-pointer group-hover:scale-105 transition duration-500"
-              />
-            </div>
-          ))}
-        </div>
-      )}
+      <!-- MASONRY СІТКА (PINTEREST ВЕРСТКА): ПІДШТОШОВУЄТЬСЯ ПІД ПРОПОРЦІЇ КОЖНОГО ФОТО -->
+      <div class="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
+        {gallery.map((url: string, index: number) => (
+          <div class="break-inside-avoid relative w-full overflow-hidden shadow-sm group cursor-pointer bg-stone-800 rounded-none">
+            <img 
+              src={url} 
+              alt={`${titleUa} photo ${index + 1}`} 
+              data-index={index} 
+              class="project-photo w-full h-auto block group-hover:scale-[1.02] transition duration-500 rounded-none" 
+            />
+          </div>
+        ))}
+      </div>
     </main>
 
     <!-- LIGHTBOX -->
     <div id="lightbox" class="fixed inset-0 z-50 bg-black/95 hidden items-center justify-between p-4 sm:p-10 select-none">
       <button id="close-btn" class="absolute top-6 right-8 text-white text-4xl font-light hover:opacity-75 transition z-10 cursor-pointer">&times;</button>
       <div id="counter" class="absolute top-8 left-8 text-white/70 text-xs tracking-widest font-mono"></div>
-
       <button id="prev-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">‹</button>
       <div class="max-w-full max-h-[85vh] flex items-center justify-center">
-        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl transition-all duration-300" />
+        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain shadow-2xl transition-all duration-300" />
       </div>
       <button id="next-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">›</button>
     </div>
 
     <script define:vars={{ gallery }}>
-      // Перемикач теми
-      const themeToggle = document.getElementById('theme-toggle');
-      const themeIconMoon = document.getElementById('theme-icon-moon');
-      const themeIconSun = document.getElementById('theme-icon-sun');
+      const menuBtn = document.getElementById('mobile-menu-btn');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      menuBtn?.addEventListener('click', () => {
+        mobileMenu?.classList.toggle('hidden');
+        mobileMenu?.classList.toggle('flex');
+      });
 
       function toggleTheme() {
         document.body.classList.toggle('light-theme');
         const isLight = document.body.classList.contains('light-theme');
-        if (isLight) {
-          themeIconMoon?.classList.add('hidden');
-          themeIconSun?.classList.remove('hidden');
-        } else {
-          themeIconMoon?.classList.remove('hidden');
-          themeIconSun?.classList.add('hidden');
-        }
+        
+        document.querySelectorAll('.theme-icon-moon').forEach(el => {
+          if (isLight) el.classList.add('hidden'); else el.classList.remove('hidden');
+        });
+        document.querySelectorAll('.theme-icon-sun').forEach(el => {
+          if (isLight) el.classList.remove('hidden'); else el.classList.add('hidden');
+        });
+
         localStorage.setItem('preferred_theme', isLight ? 'light' : 'dark');
       }
 
-      themeToggle?.addEventListener('click', toggleTheme);
+      document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.addEventListener('click', toggleTheme);
+      });
 
       if (localStorage.getItem('preferred_theme') === 'light') {
         document.body.classList.add('light-theme');
-        themeIconMoon?.classList.add('hidden');
-        themeIconSun?.classList.remove('hidden');
+        document.querySelectorAll('.theme-icon-moon').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.theme-icon-sun').forEach(el => el.classList.remove('hidden'));
       }
 
-      // Перемикання мов
       function switchLanguage(lang) {
         document.querySelectorAll('.lang-ua').forEach(btn => {
           if (lang === 'ua') {
-            btn.classList.add('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.add('lang-btn-active', 'bg-stone-200', 'text-stone-900', 'shadow');
             btn.classList.remove('lang-btn-inactive', 'text-stone-400');
           } else {
-            btn.classList.remove('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.remove('lang-btn-active', 'bg-stone-200', 'text-stone-900', 'shadow');
             btn.classList.add('lang-btn-inactive', 'text-stone-400');
           }
         });
 
         document.querySelectorAll('.lang-en').forEach(btn => {
           if (lang === 'en') {
-            btn.classList.add('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.add('lang-btn-active', 'bg-stone-200', 'text-stone-900', 'shadow');
             btn.classList.remove('lang-btn-inactive', 'text-stone-400');
           } else {
-            btn.classList.remove('lang-btn-active', 'bg-[#fbf9f5]/20', 'text-[#fbf9f5]');
+            btn.classList.remove('lang-btn-active', 'bg-stone-200', 'text-stone-900', 'shadow');
             btn.classList.add('lang-btn-inactive', 'text-stone-400');
           }
         });
 
         document.querySelectorAll('[data-i18n-ua]').forEach((el) => {
-          const text = el.getAttribute(`data-i18n-${lang}`);
-          if (text) el.textContent = text;
+          const target = el;
+          const text = target.getAttribute(`data-i18n-${lang}`);
+          if (text) target.textContent = text;
         });
 
-        const catEl = document.getElementById('project-cat');
-        if (catEl) {
-          const catText = catEl.getAttribute(`data-cat-${lang}`);
-          if (catText) catEl.textContent = catText;
-        }
-
-        const titleEl = document.getElementById('project-title');
-        if (titleEl) {
-          const titleText = titleEl.getAttribute(`data-title-${lang}`);
-          if (titleText) titleEl.textContent = titleText;
-        }
-
-        const descEl = document.getElementById('project-desc');
-        if (descEl) {
-          const descText = descEl.getAttribute(`data-desc-${lang}`);
-          if (descText) descEl.textContent = descText;
-        }
+        document.querySelectorAll('.project-title').forEach((el) => {
+          const target = el;
+          const title = target.getAttribute(`data-title-${lang}`);
+          if (title) target.textContent = title;
+        });
 
         localStorage.setItem('preferred_lang', lang);
       }
@@ -241,18 +230,18 @@ const catEn = categoryTranslations[catKey]?.en || project?.category || 'Portfoli
 
       function openLightbox(index) {
         showImage(index);
-        lightbox.classList.remove('hidden');
-        lightbox.classList.add('flex');
+        lightbox?.classList.remove('hidden');
+        lightbox?.classList.add('flex');
         document.body.style.overflow = 'hidden';
       }
 
       function closeLightbox() {
-        lightbox.classList.add('hidden');
-        lightbox.classList.remove('flex');
+        lightbox?.classList.add('hidden');
+        lightbox?.classList.remove('flex');
         document.body.style.overflow = 'auto';
       }
 
-      document.querySelectorAll('.gallery-img').forEach(img => {
+      document.querySelectorAll('.project-photo').forEach(img => {
         img.addEventListener('click', (e) => {
           const index = parseInt(e.target.getAttribute('data-index') || '0');
           openLightbox(index);

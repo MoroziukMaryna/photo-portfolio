@@ -26,17 +26,23 @@ const settings = await sanityClient.fetch(`
   }
 `);
 
-function getHighResUrl(url: string | undefined, width = 2000) {
+function getHighResUrl(url: string | undefined, width = 1600) {
   if (!url) return '';
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}w=${width}&q=90&auto=format`;
 }
 
+function getHeroImageUrl(url: string | undefined) {
+  if (!url) return '';
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=2560&q=95&auto=format`;
+}
+
 const rawHero = settings?.heroImageUrl || allProjects[0]?.coverUrl || allProjects[0]?.mainImageUrl || allProjects[0]?.galleryUrls?.[0];
-const heroImage = getHighResUrl(rawHero, 2400);
+const heroImage = getHeroImageUrl(rawHero);
 
 const featuredPhotosRaw: string[] = settings?.featuredPhotoUrls || [];
-const featuredPhotos = featuredPhotosRaw.map((url: string) => getHighResUrl(url, 2000));
+const featuredPhotos = featuredPhotosRaw.map((url: string) => getHighResUrl(url, 1200));
 
 const nameUa = settings?.photographerName || 'Марина Морозюк';
 const nameEn = settings?.photographerNameEn || 'Maryna Moroziuk';
@@ -66,30 +72,32 @@ const recentProjects = allProjects.filter((p: any) => {
   <body class="bg-[#232220] text-[#f5f2eb] antialiased selection:bg-[#d8c3b0]">
 
     <!-- ШАПКА -->
-    <header class="site-header fixed top-0 left-0 right-0 z-50 pt-5 pb-6">
+    <header class="site-header fixed top-0 left-0 right-0 z-50 pt-6 pb-12">
       <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <a href="/" class="header-logo text-xl tracking-[0.25em] uppercase font-light">
           PHOTOGRAPHER
         </a>
 
+        <!-- ДЕСКТОПНЕ МЕНЮ -->
         <nav class="hidden md:flex items-center gap-10 text-sm uppercase tracking-[0.2em] font-light">
-          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="site-nav-link text-stone-200 hover:text-white transition">Галерея</a>
-          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="site-nav-link text-stone-200 hover:text-white transition">Прайс</a>
-          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="site-nav-link text-stone-200 hover:text-white transition">Про мене</a>
+          <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="site-nav-link text-stone-300 hover:text-white transition">Галерея</a>
+          <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="site-nav-link text-stone-300 hover:text-white transition">Прайс</a>
+          <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="site-nav-link text-stone-300 hover:text-white transition">Про мене</a>
         </nav>
 
+        <!-- ДЕСКТОПНІ ПЕРЕМИКАЧІ -->
         <div class="hidden md:flex items-center gap-3 text-sm font-light tracking-wider">
-          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-500/50 bg-black/30 backdrop-blur-sm">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
             <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-stone-200 text-stone-900 shadow">UA</button>
-            <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-300 hover:text-white">EN</button>
+            <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-400 hover:text-white">EN</button>
           </div>
 
-          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-500/50 bg-black/30 backdrop-blur-sm">
-            <button id="theme-toggle" class="px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-200 hover:text-white flex items-center justify-center" title="Toggle Theme">
-              <svg id="theme-icon-moon" class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="theme-toggle px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
+              <svg class="theme-icon-moon w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
                 <path d="M21.75 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.137 2.57-7.676 6.22-9.11a.75.75 0 01.916.92 7.502 7.502 0 009.244 9.244.75.75 0 01.92.916z"/>
               </svg>
-              <svg id="theme-icon-sun" class="w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
+              <svg class="theme-icon-sun w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
                 <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.061-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.061-1.06l-1.59-1.591z"/>
               </svg>
             </button>
@@ -99,52 +107,73 @@ const recentProjects = allProjects.filter((p: any) => {
         <button id="mobile-menu-btn" class="md:hidden text-2xl p-1 focus:outline-none" aria-label="Toggle Menu">☰</button>
       </div>
 
-      <div id="mobile-menu" class="hidden md:hidden bg-[#232220]/95 backdrop-blur-lg px-6 py-6 flex-col gap-4 text-center">
+      <!-- МОБІЛЬНЕ МЕНЮ (АДАПТИВНЕ ТЛО ТА ШРИФТИ) -->
+      <div id="mobile-menu" class="hidden md:hidden bg-[#232220]/95 backdrop-blur-lg px-6 py-6 flex-col items-center gap-5 text-center mt-2 border-b border-stone-700/50 transition-colors duration-300">
         <a href="/gallery" data-i18n-ua="Галерея" data-i18n-en="Gallery" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Галерея</a>
         <a href="/price" data-i18n-ua="Прайс" data-i18n-en="Price" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Прайс</a>
         <a href="/about" data-i18n-ua="Про мене" data-i18n-en="About" class="text-base uppercase tracking-[0.2em] text-stone-200 py-1">Про мене</a>
+
+        <div class="flex items-center gap-4 pt-3 border-t border-stone-700/50 w-full justify-center mt-1">
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="lang-ua px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-active bg-stone-200 text-stone-900 shadow">UA</button>
+            <button class="lang-en px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-all duration-300 lang-btn-inactive text-stone-400 hover:text-white">EN</button>
+          </div>
+
+          <div class="pill-container flex items-center p-0.5 rounded-full border border-stone-600/50 bg-black/20">
+            <button class="theme-toggle px-2.5 py-1 rounded-full text-xs cursor-pointer text-stone-300 hover:text-white flex items-center justify-center" title="Toggle Theme">
+              <svg class="theme-icon-moon w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M21.75 15.002A9.718 9.718 0 0112 21.75c-5.385 0-9.75-4.365-9.75-9.75 0-4.137 2.57-7.676 6.22-9.11a.75.75 0 01.916.92 7.502 7.502 0 009.244 9.244.75.75 0 01.92.916z"/>
+              </svg>
+              <svg class="theme-icon-sun w-3.5 h-3.5 fill-current hidden" viewBox="0 0 24 24">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.061-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 5.106a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 101.061-1.06l-1.59-1.591z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </header>
 
     <!-- HERO БАНЕР -->
-    <section class="hero-section relative w-full h-screen flex items-center justify-center overflow-hidden">
-      {heroImage ? (
-        <img src={heroImage} alt="Hero Background" class="absolute inset-0 w-full h-full object-cover filter brightness-[0.80]" />
-      ) : (
-        <div class="absolute inset-0 bg-stone-800"></div>
-      )}
-      <div class="absolute inset-0 bg-black/35"></div>
+    <section class="hero-section relative w-full pt-28 pb-8 flex items-center justify-center">
+      <div class="relative w-full max-w-6xl mx-auto overflow-hidden rounded-none shadow-lg">
+        {heroImage ? (
+          <img src={heroImage} alt="Hero Background" class="w-full h-auto block rounded-none" />
+        ) : (
+          <div class="w-full h-96 bg-stone-800 rounded-none"></div>
+        )}
+        
+        <div class="absolute inset-0 bg-black/25 rounded-none pointer-events-none"></div>
 
-      <div class="relative z-10 text-center text-white px-4 max-w-4xl">
-        <p data-i18n-ua={phraseUa} data-i18n-en={phraseEn} class="text-xs sm:text-sm uppercase tracking-[0.3em] font-light mb-4 text-white italic">
-          {phraseUa}
-        </p>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-6 z-10">
+          <p data-i18n-ua={phraseUa} data-i18n-en={phraseEn} class="text-xs sm:text-sm uppercase tracking-[0.3em] font-light mb-3 text-white italic drop-shadow-md">
+            {phraseUa}
+          </p>
 
-        <a href="/about" class="group inline-block">
-          <h1 data-i18n-ua={nameUa} data-i18n-en={nameEn} class="text-5xl sm:text-7xl md:text-8xl font-light italic tracking-wide drop-shadow-md mb-6 hover:opacity-90 transition text-white">
-            {nameUa}
-          </h1>
-        </a>
-
-        <div class="flex flex-wrap justify-center gap-4 mt-8">
-          <!-- ЧІТКА ТЕМНО-ГРАФІТОВА НАПИС НА КНОПЦІ ГАЛЕРЕЇ -->
-          <a href="/gallery" data-i18n-ua="Галерея робіт" data-i18n-en="Gallery" class="hero-btn-primary px-8 py-3 text-xs uppercase tracking-widest transition rounded-full shadow-lg">
-            Галерея робіт
+          <a href="/about" class="group inline-block">
+            <h1 data-i18n-ua={nameUa} data-i18n-en={nameEn} class="text-4xl sm:text-6xl md:text-7xl font-light italic tracking-wide drop-shadow-lg mb-6 hover:opacity-90 transition text-white">
+              {nameUa}
+            </h1>
           </a>
-          <a href="/about" data-i18n-ua="Про фотографа" data-i18n-en="About Me" class="hero-btn-secondary px-8 py-3 border border-white/70 text-white text-xs uppercase tracking-widest hover:bg-white/10 transition rounded-full">
-            Про фотографа
-          </a>
+
+          <div class="flex flex-wrap justify-center gap-3">
+            <a href="/gallery" data-i18n-ua="Галерея робіт" data-i18n-en="Gallery" class="hero-btn-primary px-7 py-2.5 text-[11px] uppercase tracking-widest transition rounded-full shadow-lg">
+              Галерея робіт
+            </a>
+            <a href="/about" data-i18n-ua="Про фотографа" data-i18n-en="About Me" class="hero-btn-secondary px-7 py-2.5 border border-white/80 text-white text-[11px] uppercase tracking-widest hover:bg-white/10 transition rounded-full shadow-md">
+              Про фотографа
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- БЛОК "ОСТАННІ ПУБЛІКАЦІЇ" -->
+    <!-- БЛОК "ОСТАННІ ПУБЛІКАЦІЇ" (БЕЗ ТЕМНИХ РАМОК НАВКОЛО ФОТО) -->
     {recentProjects.length > 0 && (
-      <section class="max-w-7xl mx-auto px-6 py-16 border-b border-stone-700/60">
+      <section class="max-w-6xl mx-auto px-6 py-12 border-b border-stone-700/60">
         <div class="flex items-center justify-between mb-8">
           <div>
             <span class="text-[10px] uppercase tracking-widest text-amber-300 bg-amber-900/40 px-3 py-1 rounded-full font-medium">New Release</span>
-            <h2 data-i18n-ua="Останні публікації" data-i18n-en="Recent Releases" class="text-3xl font-light mt-2 italic">
+            <h2 data-i18n-ua="Останні публікації" data-i18n-en="Recent Releases" class="text-2xl sm:text-3xl font-light mt-2 italic">
               Останні публікації
             </h2>
           </div>
@@ -153,21 +182,21 @@ const recentProjects = allProjects.filter((p: any) => {
           </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
           {recentProjects.map((project: any) => {
             const rawCover = project.coverUrl || project.mainImageUrl || project.galleryUrls?.[0];
-            const cover = getHighResUrl(rawCover, 1600);
+            const cover = getHighResUrl(rawCover, 800);
             return (
-              <a href={`/projects/${project.slug}`} class="site-card group block bg-[#2e2c2a] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition border border-stone-700/60">
-                <div class="h-64 overflow-hidden bg-stone-800">
+              <a href={`/projects/${project.slug}`} class="site-card group block bg-[#2e2c2a] rounded-none overflow-hidden shadow-sm hover:shadow-md transition">
+                <div class="w-full aspect-square overflow-hidden bg-stone-800">
                   {cover ? (
-                    <img src={cover} alt={project.titleUa || 'Project'} class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    <img src={cover} alt={project.titleUa || 'Project'} class="w-full h-full object-cover group-hover:scale-105 transition duration-500 rounded-none" />
                   ) : (
-                    <div class="w-full h-full flex items-center justify-center text-xs text-stone-500">Немає зображення</div>
+                    <div class="w-full h-full flex items-center justify-center text-[10px] text-stone-500">Немає фото</div>
                   )}
                 </div>
-                <div class="p-4">
-                  <h3 data-title-ua={project.titleUa} data-title-en={project.titleEn || project.titleUa} class="project-title text-xl font-light text-stone-200">
+                <div class="p-3 text-center">
+                  <h3 data-title-ua={project.titleUa} data-title-en={project.titleEn || project.titleUa} class="project-title text-sm sm:text-base font-light text-stone-200 truncate">
                     {project.titleUa}
                   </h3>
                 </div>
@@ -178,25 +207,25 @@ const recentProjects = allProjects.filter((p: any) => {
       </section>
     )}
 
-    <!-- БЛОК "ОБРАНІ ЗНІМКИ" -->
+    <!-- БЛОК "ОБРАНІ ЗНІМКИ" (БЕЗ ТЕМНИХ РАМОК) -->
     {featuredPhotos.length > 0 && (
-      <section class="max-w-7xl mx-auto px-6 py-20">
-        <div class="text-center mb-12">
-          <h2 data-i18n-ua="Обрані знімки" data-i18n-en="Featured Shots" class="text-3xl md:text-4xl font-light italic">
+      <section class="max-w-6xl mx-auto px-6 py-14">
+        <div class="text-center mb-10">
+          <h2 data-i18n-ua="Обрані знімки" data-i18n-en="Featured Shots" class="text-2xl sm:text-3xl md:text-4xl font-light italic">
             Обрані знімки
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {featuredPhotos.map((url: string, index: number) => (
-            <div class="relative h-96 rounded-xl overflow-hidden shadow-sm group cursor-pointer border border-stone-700/60">
-              <img src={url} alt={`Featured photo ${index + 1}`} data-index={index} class="featured-photo w-full h-full object-cover group-hover:scale-105 transition duration-700" />
+            <div class="relative w-full aspect-square rounded-none overflow-hidden shadow-sm group cursor-pointer bg-stone-800">
+              <img src={url} alt={`Featured photo ${index + 1}`} data-index={index} class="featured-photo w-full h-full object-cover group-hover:scale-105 transition duration-500 rounded-none" />
             </div>
           ))}
         </div>
 
-        <div class="text-center mt-12">
-          <a href="/gallery" data-i18n-ua="Перейти до повної галереї" data-i18n-en="Go to full gallery" class="inline-block px-8 py-3 border border-stone-400 text-stone-200 text-xs uppercase tracking-widest hover:bg-stone-200 hover:text-stone-900 transition rounded-full">
+        <div class="text-center mt-10">
+          <a href="/gallery" data-i18n-ua="Перейти до повної галереї" data-i18n-en="Go to full gallery" class="inline-block px-7 py-2.5 border border-stone-400 text-stone-200 text-xs uppercase tracking-widest hover:bg-stone-200 hover:text-stone-900 transition rounded-full">
             Перейти до повної галереї
           </a>
         </div>
@@ -209,7 +238,7 @@ const recentProjects = allProjects.filter((p: any) => {
       <div id="counter" class="absolute top-8 left-8 text-white/70 text-xs tracking-widest font-mono"></div>
       <button id="prev-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">‹</button>
       <div class="max-w-full max-h-[85vh] flex items-center justify-center">
-        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain rounded shadow-2xl transition-all duration-300" />
+        <img id="lightbox-img" src="" alt="Zoomed photo" class="max-w-full max-h-[85vh] object-contain shadow-2xl transition-all duration-300" />
       </div>
       <button id="next-btn" class="text-white/70 hover:text-white text-4xl sm:text-6xl p-4 transition z-10 cursor-pointer">›</button>
     </div>
@@ -223,29 +252,28 @@ const recentProjects = allProjects.filter((p: any) => {
         mobileMenu?.classList.toggle('flex');
       });
 
-      const themeToggle = document.getElementById('theme-toggle');
-      const themeIconMoon = document.getElementById('theme-icon-moon');
-      const themeIconSun = document.getElementById('theme-icon-sun');
-
       function toggleTheme() {
         document.body.classList.toggle('light-theme');
         const isLight = document.body.classList.contains('light-theme');
-        if (isLight) {
-          themeIconMoon?.classList.add('hidden');
-          themeIconSun?.classList.remove('hidden');
-        } else {
-          themeIconMoon?.classList.remove('hidden');
-          themeIconSun?.classList.add('hidden');
-        }
+        
+        document.querySelectorAll('.theme-icon-moon').forEach(el => {
+          if (isLight) el.classList.add('hidden'); else el.classList.remove('hidden');
+        });
+        document.querySelectorAll('.theme-icon-sun').forEach(el => {
+          if (isLight) el.classList.remove('hidden'); else el.classList.add('hidden');
+        });
+
         localStorage.setItem('preferred_theme', isLight ? 'light' : 'dark');
       }
 
-      themeToggle?.addEventListener('click', toggleTheme);
+      document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.addEventListener('click', toggleTheme);
+      });
 
       if (localStorage.getItem('preferred_theme') === 'light') {
         document.body.classList.add('light-theme');
-        themeIconMoon?.classList.add('hidden');
-        themeIconSun?.classList.remove('hidden');
+        document.querySelectorAll('.theme-icon-moon').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.theme-icon-sun').forEach(el => el.classList.remove('hidden'));
       }
 
       function switchLanguage(lang) {

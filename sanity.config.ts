@@ -2,6 +2,7 @@ import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import project from './src/schemas/project';
 import siteSettings from './src/schemas/siteSettings';
+import service from './src/schemas/service';
 
 export default defineConfig({
   name: 'default',
@@ -13,6 +14,6 @@ export default defineConfig({
   plugins: [structureTool()],
 
   schema: {
-    types: [project, siteSettings], 
+    types: [project, siteSettings, service], 
   },
 });
